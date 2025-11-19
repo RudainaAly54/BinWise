@@ -16,6 +16,9 @@ import Feature3 from './dashboard card.png'
 import Feature4 from './robot.png'
 import bgtest from './recycle background.jpg'
 import WhiteLogo from './logo-removebg-preview 2.png'
+import leaves from './leaves.jpg'
+import leader from './leader.png'
+import recyclePeople from './recycle people.png'
 export const assets={
     logo,
     hero,
@@ -34,5 +37,8 @@ export const assets={
     Feature3,
     Feature4,
     bgtest,
-    WhiteLogo
+    WhiteLogo,
+    leaves,
+    leader,
+    recyclePeople
 }
