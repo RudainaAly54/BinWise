@@ -67,6 +67,7 @@ const RecycleCamera = () => {
         material: d.material || "unknown",
         weight_g: d.weight_g ?? 0,
         weight_kg: Number(weightKg.toFixed(3)),
+        baseWeightKg: Number(weightKg.toFixed(3)), // store original weight
         points: computePoints(weightKg),
         estimatedValue: computeEstimatedValue(weightKg),
         box_xyxy: Array.isArray(d.box_xyxy) ? d.box_xyxy : null,
@@ -134,24 +135,27 @@ const RecycleCamera = () => {
   const deletePhoto = (photoId) => {
     setPhotos((prev) => prev.filter((p) => p.id !== photoId));
   };
-
   const handleQuantityChange = (photoId, detectionId, newQty) => {
     setPhotos((prev) =>
       prev.map((p) => {
         if (p.id !== photoId) return p;
+
         const detections = p.detections.map((d) => {
           if (d.id !== detectionId) return d;
+
           const qty = newQty < 1 ? 1 : newQty;
-          const updatedWeightKg = d.weight_kg * qty;
+          const updatedWeightKg = d.baseWeightKg * qty; // always use original weight
+
           return {
             ...d,
             quantity: qty,
-            points: computePoints(updatedWeightKg),
-            estimatedValue: computeEstimatedValue(updatedWeightKg),
             weight_kg: Number(updatedWeightKg.toFixed(3)),
             weight_g: Math.round(updatedWeightKg * 1000),
+            points: computePoints(updatedWeightKg),
+            estimatedValue: computeEstimatedValue(updatedWeightKg),
           };
         });
+
         return { ...p, detections };
       })
     );
@@ -160,18 +164,17 @@ const RecycleCamera = () => {
   const handleSchedulePickup = () => {
     const items = photos.flatMap((p) =>
       p.detections.map((d) => ({
-        type: d.material,                     // PickupPage expects "type"
-        quantity: d.quantity,                 // Keep same
-        baseWeight: d.weight_kg,              // PickupPage: baseWeight
-        points: d.points,                     // Same
-        estimatedValue: d.estimatedValue,     // Same
-        photoSrc: p.src                       // Keep the image (optional)
+        type: d.material, // PickupPage expects "type"
+        quantity: d.quantity, // Keep same
+        baseWeight: d.weight_kg, // PickupPage: baseWeight
+        points: d.points, // Same
+        estimatedValue: d.estimatedValue, // Same
+        photoSrc: p.src, // Keep the image (optional)
       }))
     );
-  
+
     navigate("/pickup", { state: { items } });
   };
-  
 
   const renderBoundingBoxes = (photo, displayedWidth, displayedHeight) => {
     if (!photo.detections || photo.detections.length === 0) return null;
@@ -239,7 +242,11 @@ const RecycleCamera = () => {
               audio={false}
               screenshotFormat="image/jpeg"
               className="rounded-lg shadow-lg w-full"
-              videoConstraints={{ width: 1280, height: 720, facingMode: "environment" }}
+              videoConstraints={{
+                width: 1280,
+                height: 720,
+                facingMode: "environment",
+              }}
             />
             <button
               onClick={capturePhoto}
@@ -310,7 +317,10 @@ const RecycleCamera = () => {
                     const el = e.currentTarget;
                     setImgSizes((prev) => ({
                       ...prev,
-                      [photo.id]: { width: el.clientWidth, height: el.clientHeight },
+                      [photo.id]: {
+                        width: el.clientWidth,
+                        height: el.clientHeight,
+                      },
                     }));
                   }}
                 />
@@ -323,64 +333,96 @@ const RecycleCamera = () => {
                     height: imgSizes[photo.id]?.height || 180,
                   }}
                 >
-                  {renderBoundingBoxes(photo, imgSizes[photo.id]?.width || 240, imgSizes[photo.id]?.height || 180)}
+                  {renderBoundingBoxes(
+                    photo,
+                    imgSizes[photo.id]?.width || 240,
+                    imgSizes[photo.id]?.height || 180
+                  )}
                 </div>
               </div>
 
               {/* Detection cards */}
+              {/* Detection cards */}
               <div className="flex flex-col gap-2 text-gray-700 text-sm w-full">
-                <h3 className="font-semibold text-base mb-1">Detected Item Info</h3>
+                <h3 className="font-semibold text-base mb-1">
+                  Detected Item Info
+                </h3>
 
-                {photo.detections.map((d) => (
-                  <div
-                    key={d.id}
-                    className="mb-2 p-3 rounded-lg bg-white border border-gray-100 shadow-sm"
-                  >
-                    <div className="flex justify-between">
-                      <span className="font-medium">Type of Object:</span>
-                      <span className="capitalize">{d.material}</span>
+                {photo.detections.length === 0 ? (
+                  <div className="p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800">
+                    ⚠️ No items detected. The image might not be clear. Please
+                    try another photo.
+                  </div>
+                ) : (
+                  photo.detections.map((d) => (
+                    <div
+                      key={d.id}
+                      className="mb-2 p-3 rounded-lg bg-white border border-gray-100 shadow-sm"
+                    >
+                      <div className="flex justify-between">
+                        <span className="font-medium">Type of Object:</span>
+                        <span className="capitalize">{d.material}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="font-medium">Weight:</span>
+                        <span>{d.weight_kg.toFixed(2)} kg</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="font-medium">Points Earned:</span>
+                        <span>{d.points} pts</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="font-medium">Estimated Value:</span>
+                        <span>${Number(d.estimatedValue).toFixed(2)}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="font-medium">Quantity:</span>
+                        <input
+                          type="number"
+                          value={d.quantity}
+                          min={1}
+                          onChange={(e) =>
+                            handleQuantityChange(
+                              photo.id,
+                              d.id,
+                              parseInt(e.target.value || 1)
+                            )
+                          }
+                          className="w-20 border border-gray-300 rounded-md px-2 py-1 text-center text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                      </div>
                     </div>
+                  ))
+                )}
 
+                {/* Only show totals if there are detections */}
+                {photo.detections.length > 0 && (
+                  <div className="mt-2">
                     <div className="flex justify-between">
-                      <span className="font-medium">Weight:</span>
-                      <span>{d.weight_kg.toFixed(2)} kg</span>
+                      <span className="font-medium">Photo Total Weight:</span>
+                      <span>
+                        {photo.detections
+                          .reduce((s, dd) => s + dd.weight_kg * dd.quantity, 0)
+                          .toFixed(2)}{" "}
+                        kg
+                      </span>
                     </div>
-
                     <div className="flex justify-between">
-                      <span className="font-medium">Points Earned:</span>
-                      <span>{d.points} pts</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="font-medium">Estimated Value:</span>
-                      <span>${Number(d.estimatedValue).toFixed(2)}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="font-medium">Quantity:</span>
-                      <input
-                        type="number"
-                        value={d.quantity}
-                        min={1}
-                        onChange={(e) =>
-                          handleQuantityChange(photo.id, d.id, parseInt(e.target.value || 1))
-                        }
-                        className="w-20 border border-gray-300 rounded-md px-2 py-1 text-center text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                      />
+                      <span className="font-medium">Photo Total Points:</span>
+                      <span>
+                        {photo.detections.reduce(
+                          (s, dd) => s + dd.points * dd.quantity,
+                          0
+                        )}{" "}
+                        pts
+                      </span>
                     </div>
                   </div>
-                ))}
-
-                <div className="mt-2">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Photo Total Weight:</span>
-                    <span>{photo.detections.reduce((s, dd) => s + dd.weight_kg * dd.quantity, 0).toFixed(2)} kg</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Photo Total Points:</span>
-                    <span>{photo.detections.reduce((s, dd) => s + dd.points * dd.quantity, 0)} pts</span>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           ))}
@@ -400,316 +442,3 @@ const RecycleCamera = () => {
 };
 
 export default RecycleCamera;
-
-
-// import React, { useRef, useState } from "react";
-// import { IoCameraOutline } from "react-icons/io5";
-// import { MdOutlineFileUpload, MdDeleteOutline } from "react-icons/md";
-// import Webcam from "react-webcam";
-// import { useNavigate } from "react-router-dom";
-
-// const RecycleCamera = () => {
-//   const webcamRef = useRef(null);
-//   const fileInputRef = useRef(null);
-//   const navigate = useNavigate();
-
-//   const [isCameraOpen, setIsCameraOpen] = useState(false);
-//   const [photos, setPhotos] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState("");
-
-//   // ---- AI API function ----
-//   // const sendToAI = async (imageSrc) => {
-//   //   try {
-//   //     setLoading(true);
-//   //     setError("");
-
-//   //     const formData = new FormData();
-//   //     // Convert Base64 to blob if imageSrc is a base64 string
-//   //     const blob = await (await fetch(imageSrc)).blob();
-//   //     formData.append("image", blob, "recyclable.jpg");
-
-//   //     const response = await fetch("https://your-ai-api.com/detect", {
-//   //       method: "POST",
-//   //       body: formData,
-//   //       // headers: { Authorization: `Bearer ${API_KEY}` } // if needed
-//   //     });
-
-//   //     const data = await response.json();
-
-//   //     // Expected data: { type, weight, points, estimatedValue }
-//   //     if (!data || !data.type) {
-//   //       throw new Error("AI detection failed");
-//   //     }
-
-//   //     return data;
-//   //   } catch (err) {
-//   //     console.error(err);
-//   //     setError("Failed to detect item. Please try again.");
-//   //     return null;
-//   //   } finally {
-//   //     setLoading(false);
-//   //   }
-//   // };
-//   // ---- AI API function (MOCKED) ----
-// const sendToAI = async (imageSrc) => {
-//   try {
-//     setLoading(true);
-//     setError("");
-
-//     // 🟢 MOCKED RESPONSE FOR NOW
-//     await new Promise((res) => setTimeout(res, 800)); // simulate delay
-
-//     const mockTypes = ["plastic", "glass", "paper", "metal", "cardboard"];
-//     const type = mockTypes[Math.floor(Math.random() * mockTypes.length)];
-
-//     return {
-//       type,
-//       weight: Number((Math.random() * 2 + 0.2).toFixed(2)), // 0.2–2.2 kg
-//       points: Math.floor(Math.random() * 40 + 10), // 10–50 pts
-//       estimatedValue: Number((Math.random() * 5 + 1).toFixed(2)),
-//     };
-
-//   } catch (err) {
-//     console.error(err);
-//     setError("Failed to detect item. Please try again.");
-//     return null;
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
-
-//   // ---- Capture photo ----
-//   const capturePhoto = async () => {
-//     const imageSrc = webcamRef.current.getScreenshot();
-//     if (!imageSrc) return;
-
-//     const aiResult = await sendToAI(imageSrc);
-//     if (!aiResult) return;
-
-//     const newPhoto = {
-//       id: Date.now(),
-//       src: imageSrc,
-//       type: aiResult.type,
-//       baseWeight: aiResult.weight,
-//       basePoints: aiResult.points,
-//       weight: `${Math.round(aiResult.weight)} kg`,
-//       points: aiResult.points,
-//       estimatedValue: `$${aiResult.estimatedValue.toFixed(2)}`,
-//       quantity: 1,
-//     };
-
-//     setPhotos((prev) => [newPhoto, ...prev]);
-//     setIsCameraOpen(false);
-//   };
-
-//   // ---- Upload file ----
-//   const handleButtonClick = () => fileInputRef.current.click();
-
-//   const handleFileChange = async (event) => {
-//     const file = event.target.files[0];
-//     if (!file) return;
-
-//     const imageURL = URL.createObjectURL(file);
-//     const aiResult = await sendToAI(imageURL);
-//     if (!aiResult) return;
-
-//     const newPhoto = {
-//       id: Date.now(),
-//       src: imageURL,
-//       type: aiResult.type,
-//       baseWeight: aiResult.weight,
-//       basePoints: aiResult.points,
-//       weight: `${Math.round(aiResult.weight)} kg`,
-//       points: aiResult.points,
-//       estimatedValue: `$${aiResult.estimatedValue.toFixed(2)}`,
-//       quantity: 1,
-//     };
-
-//     setPhotos((prev) => [newPhoto, ...prev]);
-//   };
-
-//   // ---- Delete photo ----
-//   const deletePhoto = (id) => {
-//     setPhotos((prev) => prev.filter((photo) => photo.id !== id));
-//   };
-
-//   // ---- Update quantity ----
-//   const handleQuantityChange = (id, newQuantity) => {
-//     setPhotos((prev) =>
-//       prev.map((photo) => {
-//         if (photo.id === id) {
-//           const updatedQty = newQuantity < 1 ? 1 : newQuantity;
-//           const updatedWeight = photo.baseWeight * updatedQty;
-//           const updatedPoints = photo.basePoints * updatedQty;
-
-//           return {
-//             ...photo,
-//             quantity: updatedQty,
-//             weight: `${Math.round(updatedWeight)} kg`,
-//             points: updatedPoints,
-//           };
-//         }
-//         return photo;
-//       })
-//     );
-//   };
-
-//   // ---- Schedule Pickup ----
-//   const handleSchedulePickup = () => {
-//     // Pass all detected items to Pickup Form via state
-//     navigate("/pickup", { state: { items: photos } });
-//   };
-
-//   return (
-//     <div className="border rounded-xl p-4 bg-white border-gray-300 w-full h-fit">
-//       {/* Header */}
-//       <div className="flex items-center gap-2 text-xl mb-2">
-//         <IoCameraOutline className="text-2xl" />
-//         <h2 className="font-semibold">AI Image Recognition</h2>
-//       </div>
-//       <p className="text-gray-600 text-sm mb-4">
-//         Scan or upload an image to identify recyclable materials
-//       </p>
-
-//       {/* Camera or Placeholder */}
-//       <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-400 rounded-xl p-6 min-h-[280px] transition-all">
-//         {isCameraOpen ? (
-//           <div className="flex flex-col items-center gap-3 w-full">
-//             <Webcam
-//               ref={webcamRef}
-//               audio={false}
-//               screenshotFormat="image/jpeg"
-//               className="rounded-lg shadow-lg w-full"
-//               videoConstraints={{
-//                 width: 150,
-//                 height: 80,
-//                 facingMode: "environment",
-//               }}
-//             />
-//             <button
-//               onClick={capturePhoto}
-//               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-medium"
-//               disabled={loading}
-//             >
-//               {loading ? "Detecting..." : "Capture Photo"}
-//             </button>
-//             {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
-//           </div>
-//         ) : (
-//           <>
-//             <IoCameraOutline className="text-8xl text-gray-400 mb-3" />
-//             <h3 className="font-semibold text-lg">Ready to Scan</h3>
-//             <p className="text-gray-600 text-sm mb-3 text-center">
-//               Take a photo or upload an image to get started
-//             </p>
-//             <button
-//               onClick={() => setIsCameraOpen(true)}
-//               className="cursor-pointer rounded-xl text-sm px-3 w-40 h-9 text-white bg-[#186933] hover:bg-[#124d26] inline-flex items-center justify-center gap-1"
-//             >
-//               <IoCameraOutline className="text-lg" />
-//               Take Photo
-//             </button>
-//           </>
-//         )}
-//       </div>
-
-//       {/* Upload Button */}
-//       <div className="flex gap-3 mt-4">
-//         <button
-//           onClick={handleButtonClick}
-//           className="cursor-pointer rounded-xl border border-gray-300 text-sm px-3 w-full h-9 hover:bg-gray-200 inline-flex items-center justify-center gap-1"
-//         >
-//           <MdOutlineFileUpload className="text-xl" />
-//           Upload Image
-//         </button>
-//         <input
-//           type="file"
-//           accept="image/*"
-//           ref={fileInputRef}
-//           onChange={handleFileChange}
-//           style={{ display: "none" }}
-//         />
-//       </div>
-
-//       {/* Photos History */}
-//       {photos.length > 0 && (
-//         <div className="mt-6 flex flex-col gap-5">
-//           {photos.map((photo) => (
-//             <div
-//               key={photo.id}
-//               className="relative flex flex-col md:flex-row items-center md:items-start gap-6 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm"
-//             >
-//               {/* Delete Button */}
-//               <button
-//                 onClick={() => deletePhoto(photo.id)}
-//                 className="absolute top-2 right-2 bg-white rounded-full p-1 shadow hover:bg-red-50 cursor-pointer"
-//                 title="Delete Photo"
-//               >
-//                 <MdDeleteOutline className="text-red-600 text-2xl" />
-//               </button>
-
-//               {/* Image Preview */}
-//               <img
-//                 src={photo.src}
-//                 alt="Captured or Uploaded"
-//                 className="rounded-lg shadow-lg w-60 select-none"
-//               />
-
-//               {/* Description */}
-//               <div className="flex flex-col gap-2 text-gray-700 text-sm w-full">
-//                 <h3 className="font-semibold text-base mb-1">Detected Item Info</h3>
-
-//                 <div className="flex justify-between">
-//                   <span className="font-medium">Type of Object:</span>
-//                   <span>{photo.type}</span>
-//                 </div>
-
-//                 <div className="flex justify-between">
-//                   <span className="font-medium">Weight:</span>
-//                   <span>{photo.weight}</span>
-//                 </div>
-
-//                 <div className="flex justify-between">
-//                   <span className="font-medium">Points Earned:</span>
-//                   <span>{photo.points} pts</span>
-//                 </div>
-
-//                 <div className="flex justify-between">
-//                   <span className="font-medium">Estimated Value:</span>
-//                   <span>{photo.estimatedValue}</span>
-//                 </div>
-
-//                 {/* Quantity Field */}
-//                 <div className="flex justify-between items-center mb-3">
-//                   <span className="font-medium">Quantity:</span>
-//                   <input
-//                     type="number"
-//                     value={photo.quantity}
-//                     min={1}
-//                     onChange={(e) =>
-//                       handleQuantityChange(photo.id, parseInt(e.target.value))
-//                     }
-//                     className="w-20 border border-gray-300 rounded-md px-2 py-1 text-center text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-//                   />
-//                 </div>
-
-//               </div>
-//             </div>
-//           ))}
-//                 <div className="self-center">
-//                   <button
-//                     onClick={handleSchedulePickup}
-//                     className="bg-[#186933] hover:bg-[#124d26] w-lg text-white  px-4 py-2 rounded-xl cursor-pointer"
-//                   >
-//                     Schedule Pickup
-//                   </button>
-//                 </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default RecycleCamera;
