@@ -3,6 +3,7 @@ import { IoCameraOutline } from "react-icons/io5";
 import { MdOutlineFileUpload, MdDeleteOutline } from "react-icons/md";
 import Webcam from "react-webcam";
 import { useNavigate } from "react-router-dom";
+import { AlertTriangle } from 'lucide-react';
 
 const RecycleCamera = () => {
   const webcamRef = useRef(null);
@@ -233,6 +234,19 @@ const RecycleCamera = () => {
         Scan or upload an image to identify recyclable materials
       </p>
 
+{/* Warning box */}
+      <div className="flex items-center gap-3 bg-yellow-50 border border-yellow-200 rounded-lg p-2 max-w-md mb-4">
+        <AlertTriangle className="w-10 h-10 text-yellow-600 flex-shrink-0 mt-0.5" />
+        <div className="flex-1">
+          <h3 className="font-semibold text-yellow-800 text-[16px] mb-1">
+            Warning!
+          </h3>
+          <p className="text-yellow-700 text-[11px]">
+            Please ensure your image is clear and well-lit for accurate detection.
+          </p>
+        </div>
+      </div>
+
       {/* Camera */}
       <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-400 rounded-xl p-6 min-h-[280px] transition-all">
         {isCameraOpen ? (
@@ -349,8 +363,8 @@ const RecycleCamera = () => {
                 </h3>
 
                 {photo.detections.length === 0 ? (
-                  <div className="p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800">
-                    ⚠️ No items detected. The image might not be clear. Please
+                  <div className="p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800 flex items-center gap-2">
+                   <AlertTriangle/> No items detected. The image might not be clear. Please
                     try another photo.
                   </div>
                 ) : (

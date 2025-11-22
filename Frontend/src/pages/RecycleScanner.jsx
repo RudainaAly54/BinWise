@@ -27,6 +27,8 @@ const RecycleScanner = () => {
         <p className="text-gray-600">AI-powered recognition to identify recyclable materials</p>
 
         <div className="flex flex-col gap-10 md:flex-row lg:flex-row mt-6">
+
+          
           <RecycleCamera />
 
           <div className="flex flex-col gap-8 min-w-[30%]">

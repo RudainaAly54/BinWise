@@ -194,6 +194,8 @@ const PickupPage = () => {
 
   // Populate form for editing
   const handleUpdatePickup = (pickupData) => {
+ setEditingPickupId(pickupData._id || pickupData.id || null);
+
     // pickupData expected to include: address, weight, time_slot, pickupTime, items, _id
     dispatch({ type: "SET_ADDRESS", payload: pickupData.address || "" });
     dispatch({ type: "SET_WEIGHT", payload: pickupData.weight || 0 });
@@ -206,8 +208,7 @@ const PickupPage = () => {
 
     // set materials from items array
     if (Array.isArray(pickupData.items)) {
-      // reset materials first
-      dispatch({ type: "RESET_FORM" });
+  
       pickupData.items.forEach((item) => {
         const material = (item.type || item.category || item).toLowerCase();
         dispatch({ type: "SET_MATERIAL", payload: material });
@@ -217,7 +218,7 @@ const PickupPage = () => {
     dispatch({ type: "SET_INSTRUCTIONS", payload: pickupData.instructions || "" });
 
     window.scrollTo({ top: 0, behavior: "smooth" });
-    setEditingPickupId(pickupData._id || pickupData.id || null);
+   
   };
 
   if (loadingUser) return <LoadingSpinner />;
@@ -365,6 +366,23 @@ const PickupPage = () => {
                     </div>
                   ))}
                 </div>
+                <div className="flex flex-col items-start gap-2">
+                  {["clothes"].map((item) => (
+                    <div key={item}>
+                      <input
+                        type="checkbox"
+                        id={item}
+                        value={item}
+                        checked={state.material.includes(item)}
+                        onChange={(e) => dispatch({ type: "SET_MATERIAL", payload: e.target.value })}
+                        className="accent-gray-800"
+                      />
+                      <label htmlFor={item} className="text-black ml-1 capitalize">
+                        {item}
+                      </label>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -379,7 +397,7 @@ const PickupPage = () => {
                 placeholder="e.g. 5"
                 min={1}
                 required
-                value={state.weight|| 0}
+                /* value={state.weight|| 0} */
                 onChange={(e) => dispatch({ type: "SET_WEIGHT", payload: e.target.value })}
                 className="border-2 border-transparent  rounded-xl p-2 bg-gray-100 text-gray-500 w-full focus:outline-none focus:border-2 focus:border-solid focus:border-black transtion duration-100"
               />
