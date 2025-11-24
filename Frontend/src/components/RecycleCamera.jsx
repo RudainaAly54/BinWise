@@ -49,9 +49,68 @@ const RecycleCamera = () => {
     }
   };
 
-  const computePoints = (weightKg) => Math.max(1, Math.round(weightKg * 20));
-  const computeEstimatedValue = (weightKg) =>
-    Number((weightKg * 0.2).toFixed(2));
+  // points per kg for each material
+  const POINTS_PER_KG = {
+    plastic: 167,
+    paper: 53,
+    cardboard: 53,
+    glass: 23,
+    clothes: 117,
+    metal: 287,
+    electronics: 2000,
+  };
+
+  const POINT_PRICE = 0.15;
+
+  // Normalize material names from API to our defined categories
+  const normalizeMaterial = (material) => {
+    if (!material) return "plastic"; // default
+    
+    const mat = material.toLowerCase();
+    
+    // Check each material type
+    if (mat.includes("plastic") || mat.includes("bottle") || mat.includes("cup") || mat.includes("bag")) 
+      return "plastic";
+    
+    if (mat.includes("paper")) 
+      return "paper";
+    
+    if (mat.includes("cardboard") || mat.includes("box")) 
+      return "cardboard";
+    
+    if (mat.includes("glass") || mat.includes("jar")) 
+      return "glass";
+    
+    if (mat.includes("clothes") || mat.includes("fabric") || mat.includes("textile") || mat.includes("cloth")) 
+      return "clothes";
+    
+    if (mat.includes("metal") || mat.includes("aluminum") || mat.includes("steel") || mat.includes("can") || mat.includes("iron")) 
+      return "metal";
+    
+    if (mat.includes("electronic") || mat.includes("battery") || mat.includes("wire") || mat.includes("device")) 
+      return "electronics";
+    
+    // Default to plastic if unknown
+    console.warn("⚠️ Unknown material:", material, "- defaulting to plastic");
+    return "plastic";
+  };
+
+  const computePoints = (weightKg, material) => {
+    const normalizedMaterial = normalizeMaterial(material);
+    const pointsPerKg = POINTS_PER_KG[normalizedMaterial];
+    const points = weightKg * pointsPerKg;
+    
+    //  Debug log
+    console.log(`📊 Material: "${material}" → "${normalizedMaterial}" | Weight: ${weightKg}kg | Points: ${points.toFixed(2)}`);
+    
+    return Math.round(points * 100) / 100;
+  };
+
+  const computeEstimatedValue = (weightKg, material) => {
+    const points = computePoints(weightKg, material);
+    const value = points * POINT_PRICE;
+    return Math.round(value * 100) / 100;
+  };
 
   const mapApiResponseToPhoto = async (imageSrc, apiData) => {
     const img = new Image();
@@ -68,9 +127,9 @@ const RecycleCamera = () => {
         material: d.material || "unknown",
         weight_g: d.weight_g ?? 0,
         weight_kg: Number(weightKg.toFixed(3)),
-        baseWeightKg: Number(weightKg.toFixed(3)), // store original weight
-        points: computePoints(weightKg),
-        estimatedValue: computeEstimatedValue(weightKg),
+        baseWeightKg: Number(weightKg.toFixed(3)),
+        points: computePoints(weightKg, d.material),
+        estimatedValue: computeEstimatedValue(weightKg, d.material),
         box_xyxy: Array.isArray(d.box_xyxy) ? d.box_xyxy : null,
         quantity: 1,
       };
@@ -136,6 +195,7 @@ const RecycleCamera = () => {
   const deletePhoto = (photoId) => {
     setPhotos((prev) => prev.filter((p) => p.id !== photoId));
   };
+
   const handleQuantityChange = (photoId, detectionId, newQty) => {
     setPhotos((prev) =>
       prev.map((p) => {
@@ -145,15 +205,12 @@ const RecycleCamera = () => {
           if (d.id !== detectionId) return d;
 
           const qty = newQty < 1 ? 1 : newQty;
-          const updatedWeightKg = d.baseWeightKg * qty; // always use original weight
+          const updatedWeightKg = d.baseWeightKg * qty;
 
           return {
             ...d,
             quantity: qty,
-            weight_kg: Number(updatedWeightKg.toFixed(3)),
-            weight_g: Math.round(updatedWeightKg * 1000),
-            points: computePoints(updatedWeightKg),
-            estimatedValue: computeEstimatedValue(updatedWeightKg),
+            estimatedValue: computeEstimatedValue(updatedWeightKg, d.material),
           };
         });
 
@@ -165,12 +222,12 @@ const RecycleCamera = () => {
   const handleSchedulePickup = () => {
     const items = photos.flatMap((p) =>
       p.detections.map((d) => ({
-        type: d.material, // PickupPage expects "type"
-        quantity: d.quantity, // Keep same
-        baseWeight: d.weight_kg, // PickupPage: baseWeight
-        points: d.points, // Same
-        estimatedValue: d.estimatedValue, // Same
-        photoSrc: p.src, // Keep the image (optional)
+        type: d.material,
+        quantity: d.quantity,
+        baseWeight: d.weight_kg,
+        points: d.points,
+        estimatedValue: d.estimatedValue,
+        photoSrc: p.src,
       }))
     );
 
@@ -234,7 +291,7 @@ const RecycleCamera = () => {
         Scan or upload an image to identify recyclable materials
       </p>
 
-{/* Warning box */}
+      {/* Warning box */}
       <div className="flex items-center gap-3 bg-yellow-50 border border-yellow-200 rounded-lg p-2 max-w-md mb-4">
         <AlertTriangle className="w-10 h-10 text-yellow-600 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
@@ -356,7 +413,6 @@ const RecycleCamera = () => {
               </div>
 
               {/* Detection cards */}
-              {/* Detection cards */}
               <div className="flex flex-col gap-2 text-gray-700 text-sm w-full">
                 <h3 className="font-semibold text-base mb-1">
                   Detected Item Info
@@ -364,7 +420,7 @@ const RecycleCamera = () => {
 
                 {photo.detections.length === 0 ? (
                   <div className="p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800 flex items-center gap-2">
-                   <AlertTriangle/> No items detected. The image might not be clear. Please
+                    <AlertTriangle/> No items detected. The image might not be clear. Please
                     try another photo.
                   </div>
                 ) : (
@@ -390,7 +446,7 @@ const RecycleCamera = () => {
 
                       <div className="flex justify-between">
                         <span className="font-medium">Estimated Value:</span>
-                        <span>${Number(d.estimatedValue).toFixed(2)}</span>
+                        <span>{Number(d.estimatedValue).toFixed(2)} EGP</span>
                       </div>
 
                       <div className="flex items-center gap-2 mt-2">
