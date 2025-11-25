@@ -225,7 +225,7 @@ const PickupPage = () => {
 
   return (
     <section id="pickup" className="mb-10 min-h-screen bg-gray-100 ">
-      <div className="flex flex-col gap-2 px-10 mt-10 md:flex-row">
+      <div className="flex flex-col gap-2 mt-10 md:flex-row">
         <div className="bg-white border-none rounded-2xl text-gray-500 p-4 flex-1">
           <div className="flex items-center">
             <svg
@@ -256,8 +256,9 @@ const PickupPage = () => {
           {/* User Status Info */}
           {isLoggedin && userData ? (
             <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-sm text-blue-700">
-                <span className="font-medium">Scheduling as:</span> {userData.name} ({userData.email})
+              <p className="text-xs md:text-sm  text-blue-700">
+                <span className="font-medium">Scheduling as:</span> 
+                {userData.name} ({userData.email})
               </p>
             </div>
           ) : (
@@ -330,9 +331,8 @@ const PickupPage = () => {
                 Material for pickup
               </label>
 
-              <div className="flex gap-12 ml-6">
-                <div className="flex flex-col items-start gap-2">
-                  {["plastic", "glass", "cardboard"].map((item) => (
+                <div className="grid grid-cols-2 gap-1 md:m-1 md:gap-3">
+                  {["plastic", "glass", "cardboard","clothes","paper", "metal", "electronics"].map((item) => (
                     <div key={item}>
                       <input
                         type="checkbox"
@@ -342,48 +342,12 @@ const PickupPage = () => {
                         onChange={(e) => dispatch({ type: "SET_MATERIAL", payload: e.target.value })}
                         className="accent-gray-800"
                       />
-                      <label htmlFor={item} className="text-black ml-1 capitalize">
+                      <label htmlFor={item} className="text-black ml-1  capitalize">
                         {item}
                       </label>
                     </div>
                   ))}
                 </div>
-
-                <div className="flex flex-col items-start gap-2">
-                  {["paper", "metal", "electronics"].map((item) => (
-                    <div key={item}>
-                      <input
-                        type="checkbox"
-                        id={item}
-                        value={item}
-                        checked={state.material.includes(item)}
-                        onChange={(e) => dispatch({ type: "SET_MATERIAL", payload: e.target.value })}
-                        className="accent-gray-800"
-                      />
-                      <label htmlFor={item} className="text-black ml-1 capitalize">
-                        {item}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex flex-col items-start gap-2">
-                  {["clothes"].map((item) => (
-                    <div key={item}>
-                      <input
-                        type="checkbox"
-                        id={item}
-                        value={item}
-                        checked={state.material.includes(item)}
-                        onChange={(e) => dispatch({ type: "SET_MATERIAL", payload: e.target.value })}
-                        className="accent-gray-800"
-                      />
-                      <label htmlFor={item} className="text-black ml-1 capitalize">
-                        {item}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
 
             {/* Weight */}
@@ -450,7 +414,7 @@ const PickupPage = () => {
             <button
               type="submit"
               disabled={submited}
-              className={`w-[95%] mt-2 flex items-center justify-center gap-2 rounded-full p-3 transition-all ${
+              className={`w-[95%] mt-2 flex items-center justify-center gap-2 rounded-full p-3 transition-all cursor-pointer ${
                 submited ? "bg-green-600 text-white cursor-wait" : "bg-green-700 text-white hover:bg-green-800"
               }`}
             >
@@ -532,7 +496,7 @@ const PickupPage = () => {
 
             {isLoggedin && pickupHistory.length > 0 && (
               <div className="mt-4 pt-4 border-t border-gray-200">
-                <button onClick={fetchMyPickups} className="text-green-700 hover:text-green-800 text-sm font-medium transition-colors">
+                <button onClick={fetchMyPickups} className="text-green-700 hover:text-green-800 text-sm font-medium transition-colors cursor-pointer">
                   Refresh History
                 </button>
               </div>
@@ -540,7 +504,7 @@ const PickupPage = () => {
           </div>
 
           {/* Tips */}
-          <div className="bg-white rounded-2xl p-4 text-black space-y-2 shadow-xl px-5">
+          <div className="bg-white  rounded-2xl p-4 text-black space-y-2 shadow-xl px-5">
             {[
               "Convenient door-to-door service",
               "Proper sorting and handling",
@@ -551,6 +515,7 @@ const PickupPage = () => {
               <div key={i} className="flex items-center gap-3">
                 <svg
                   width="30"
+                  height="30"
                   fill="#004932"
                   viewBox="0 0 200 200"
                   xmlns="http://www.w3.org/2000/svg"

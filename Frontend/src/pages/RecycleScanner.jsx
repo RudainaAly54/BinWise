@@ -43,7 +43,7 @@ const RecycleScanner = () => {
                   <button
                     key={type}
                     onClick={() => setSelected(type)}
-                    className={`py-2 rounded-xl font-medium ${selected === type ? "bg-gray-200 text-gray-900" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
+                    className={`py-2 cursor-pointer rounded-xl font-medium ${selected === type ? "bg-gray-200 text-gray-900" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
                   >
                     {type}
                   </button>

@@ -2,7 +2,7 @@ import React from 'react'
 const ResourseCard = (props) => {
     return (
         <div>
-            <div className="m-5 border-2 border-black rounded-2xl shadow-xl p-4 w-80 ">
+            <div className="m-5 border-2 bg-white border-black rounded-2xl shadow-xl p-4 max-w-80 ">
                 <div className='flex justify-between'> 
                 <div className='bg-gray-300 text-black px-3 py-1 rounded-md mb-2'>{props.buton}</div><span>{props.date}</span>
                 </div>

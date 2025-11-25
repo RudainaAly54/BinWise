@@ -17,6 +17,18 @@ const ProfileHeader = () => {
     points: 0,
     Gains: 0,
   });
+  
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+  
+    // Cleanup (runs when component unmounts)
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [isOpen]);
+  
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -112,7 +124,7 @@ const ProfileHeader = () => {
       <div className="w-full sm:w-auto flex justify-center sm:justify-end mt-3 sm:mt-0">
         <button
           onClick={() => setIsOpen(true)}
-          className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-green-600 text-white rounded-xl shadow-md hover:bg-green-700 transition font-medium whitespace-nowrap"
+          className="cursor-pointer w-full sm:w-auto px-4 sm:px-6 py-2 bg-green-600 text-white rounded-xl shadow-md hover:bg-green-700 transition font-medium whitespace-nowrap"
         >
           Edit Profile
         </button>
@@ -124,7 +136,7 @@ const ProfileHeader = () => {
           onClick={() => setIsOpen(false)}
         >
           <div
-            className="bg-white/90 rounded-2xl p-6 w-full max-w-md relative shadow-xl"
+            className="bg-white rounded-2xl p-6 mx-6 w-full max-w-100 relative shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-xl font-bold mb-4 text-gray-800">Edit Profile</h2>
@@ -176,13 +188,13 @@ const ProfileHeader = () => {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition"
+                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 cursor-pointer transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                  className="px-4 py-2 bg-green-700 text-white rounded cursor-pointer hover:bg-green-900 transition"
                 >
                   Save
                 </button>

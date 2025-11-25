@@ -39,7 +39,7 @@ useEffect(() => {
   return (
     <section className="min-h-screen bg-gray-100 pb-10">
       {/* Map and Centers */}
-      <div className="flex flex-col lg:flex-row gap-6 px-10 mt-6 py-6 rounded-2xl shadow-lg">
+      <div className="flex flex-col lg:flex-row gap-6 py-3 rounded-2xl ">
         {/* Map */}
         <div className="w-full lg:w-1/2 bg-white p-6 rounded-2xl shadow-md">
        <div className="flex gap-2 items-center">

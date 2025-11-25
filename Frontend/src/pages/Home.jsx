@@ -6,6 +6,7 @@ import RecyclingProgram from '../components/RecyclingProgram'
 import Features from '../components/Features'
 import Testmonials from '../components/Testmonials'
 import Footer from '../components/Footer'
+import Contact from '../components/Contact'
 
 const Home = () => {
   return (
@@ -17,6 +18,7 @@ const Home = () => {
         <RecyclingProgram/>
         <Testmonials/>
         <Features/>
+        <Contact/>
         <Footer/>
       </div>
     </div>

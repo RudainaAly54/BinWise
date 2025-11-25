@@ -3,7 +3,7 @@ import { IoCameraOutline } from "react-icons/io5";
 import { MdOutlineFileUpload, MdDeleteOutline } from "react-icons/md";
 import Webcam from "react-webcam";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from "lucide-react";
 
 const RecycleCamera = () => {
   const webcamRef = useRef(null);
@@ -65,31 +65,49 @@ const RecycleCamera = () => {
   // Normalize material names from API to our defined categories
   const normalizeMaterial = (material) => {
     if (!material) return "plastic"; // default
-    
+
     const mat = material.toLowerCase();
-    
+
     // Check each material type
-    if (mat.includes("plastic") || mat.includes("bottle") || mat.includes("cup") || mat.includes("bag")) 
+    if (
+      mat.includes("plastic") ||
+      mat.includes("bottle") ||
+      mat.includes("cup") ||
+      mat.includes("bag")
+    )
       return "plastic";
-    
-    if (mat.includes("paper")) 
-      return "paper";
-    
-    if (mat.includes("cardboard") || mat.includes("box")) 
-      return "cardboard";
-    
-    if (mat.includes("glass") || mat.includes("jar")) 
-      return "glass";
-    
-    if (mat.includes("clothes") || mat.includes("fabric") || mat.includes("textile") || mat.includes("cloth")) 
+
+    if (mat.includes("paper")) return "paper";
+
+    if (mat.includes("cardboard") || mat.includes("box")) return "cardboard";
+
+    if (mat.includes("glass") || mat.includes("jar")) return "glass";
+
+    if (
+      mat.includes("clothes") ||
+      mat.includes("fabric") ||
+      mat.includes("textile") ||
+      mat.includes("cloth")
+    )
       return "clothes";
-    
-    if (mat.includes("metal") || mat.includes("aluminum") || mat.includes("steel") || mat.includes("can") || mat.includes("iron")) 
+
+    if (
+      mat.includes("metal") ||
+      mat.includes("aluminum") ||
+      mat.includes("steel") ||
+      mat.includes("can") ||
+      mat.includes("iron")
+    )
       return "metal";
-    
-    if (mat.includes("electronic") || mat.includes("battery") || mat.includes("wire") || mat.includes("device")) 
+
+    if (
+      mat.includes("electronic") ||
+      mat.includes("battery") ||
+      mat.includes("wire") ||
+      mat.includes("device")
+    )
       return "electronics";
-    
+
     // Default to plastic if unknown
     console.warn("⚠️ Unknown material:", material, "- defaulting to plastic");
     return "plastic";
@@ -99,10 +117,14 @@ const RecycleCamera = () => {
     const normalizedMaterial = normalizeMaterial(material);
     const pointsPerKg = POINTS_PER_KG[normalizedMaterial];
     const points = weightKg * pointsPerKg;
-    
+
     //  Debug log
-    console.log(`📊 Material: "${material}" → "${normalizedMaterial}" | Weight: ${weightKg}kg | Points: ${points.toFixed(2)}`);
-    
+    console.log(
+      `📊 Material: "${material}" → "${normalizedMaterial}" | Weight: ${weightKg}kg | Points: ${points.toFixed(
+        2
+      )}`
+    );
+
     return Math.round(points * 100) / 100;
   };
 
@@ -231,7 +253,7 @@ const RecycleCamera = () => {
       }))
     );
 
-    navigate("/pickup", { state: { items } });
+    navigate("/pickup#pickup", { state: { items } });
   };
 
   const renderBoundingBoxes = (photo, displayedWidth, displayedHeight) => {
@@ -292,14 +314,15 @@ const RecycleCamera = () => {
       </p>
 
       {/* Warning box */}
-      <div className="flex items-center gap-3 bg-yellow-50 border border-yellow-200 rounded-lg p-2 max-w-md mb-4">
-        <AlertTriangle className="w-10 h-10 text-yellow-600 flex-shrink-0 mt-0.5" />
+      <div className="flex gap-3 bg-yellow-50 border border-yellow-200 rounded-lg p-2 mb-4">
+        <AlertTriangle className=" w-fit text-yellow-600  mt-0.5" />
         <div className="flex-1">
-          <h3 className="font-semibold text-yellow-800 text-[16px] mb-1">
+          <h3 className="font-semibold text-yellow-800 text-sm mb-1">
             Warning!
           </h3>
-          <p className="text-yellow-700 text-[11px]">
-            Please ensure your image is clear and well-lit for accurate detection.
+          <p className="text-yellow-700 text-xs">
+            Please ensure your image is clear and well-lit for accurate
+            detection.
           </p>
         </div>
       </div>
@@ -314,7 +337,7 @@ const RecycleCamera = () => {
               screenshotFormat="image/jpeg"
               className="rounded-lg shadow-lg w-full"
               videoConstraints={{
-                width: 1280,
+                width: 1280 ,
                 height: 720,
                 facingMode: "environment",
               }}
@@ -337,7 +360,7 @@ const RecycleCamera = () => {
             </p>
             <button
               onClick={() => setIsCameraOpen(true)}
-              className="cursor-pointer rounded-xl text-sm px-3 w-40 h-9 text-white bg-[#186933] hover:bg-[#124d26] inline-flex items-center justify-center gap-1"
+              className="cursor-pointer rounded-xl text-sm md:text-lg px-3 h-9 text-white bg-[#186933] hover:bg-[#124d26] inline-flex items-center justify-center gap-1"
             >
               <IoCameraOutline className="text-lg" /> Take Photo
             </button>
@@ -372,14 +395,14 @@ const RecycleCamera = () => {
             >
               <button
                 onClick={() => deletePhoto(photo.id)}
-                className="absolute top-2 right-2 bg-white rounded-full p-1 shadow hover:bg-red-50 cursor-pointer"
+                className="absolute top-2 right-2 bg-white rounded-full p-1 shadow hover:bg-red-50 z-10 cursor-pointer"
                 title="Delete Photo"
               >
                 <MdDeleteOutline className="text-red-600 text-2xl" />
               </button>
 
               {/* Image */}
-              <div className="relative w-60">
+              <div className="relative overflow-hidden">
                 <img
                   src={photo.src}
                   alt="Captured or Uploaded"
@@ -419,9 +442,17 @@ const RecycleCamera = () => {
                 </h3>
 
                 {photo.detections.length === 0 ? (
-                  <div className="p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800 flex items-center gap-2">
-                    <AlertTriangle/> No items detected. The image might not be clear. Please
-                    try another photo.
+                  <div className="flex gap-3 bg-yellow-50 border border-yellow-200 rounded-lg p-2 mb-4">
+                    <AlertTriangle className=" w-fit text-yellow-600  mt-0.5" />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-yellow-800 text-sm mb-1">
+                        Try Again!
+                      </h3>
+                      <p className="text-yellow-700 text-xs">
+                        No items detected. The image might not be clear. Please
+                        try another photo.{" "}
+                      </p>
+                    </div>
                   </div>
                 ) : (
                   photo.detections.map((d) => (
@@ -429,28 +460,28 @@ const RecycleCamera = () => {
                       key={d.id}
                       className="mb-2 p-3 rounded-lg bg-white border border-gray-100 shadow-sm"
                     >
-                      <div className="flex justify-between">
+                      <div className="flex justify-between flex-col sm:flex-row md:flex-row">
                         <span className="font-medium">Type of Object:</span>
                         <span className="capitalize">{d.material}</span>
                       </div>
 
-                      <div className="flex justify-between">
+                      <div className="flex justify-between flex-col sm:flex-row md:flex-row">
                         <span className="font-medium">Weight:</span>
                         <span>{d.weight_kg.toFixed(2)} kg</span>
                       </div>
 
-                      <div className="flex justify-between">
+                      <div className="flex justify-between flex-col sm:flex-row md:flex-row">
                         <span className="font-medium">Points Earned:</span>
                         <span>{d.points} pts</span>
                       </div>
 
-                      <div className="flex justify-between">
+                      <div className="flex justify-between flex-col sm:flex-row md:flex-row">
                         <span className="font-medium">Estimated Value:</span>
                         <span>{Number(d.estimatedValue).toFixed(2)} EGP</span>
                       </div>
 
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="font-medium">Quantity:</span>
+                      <div className="flex  gap-2 mt-2 flex-col item sm:flex-row md:flex-row">
+                        <span className="font-medium pt-1">Quantity:</span>
                         <input
                           type="number"
                           value={d.quantity}
@@ -500,7 +531,7 @@ const RecycleCamera = () => {
           <div className="self-center">
             <button
               onClick={handleSchedulePickup}
-              className="bg-[#186933] hover:bg-[#124d26] w-lg text-white px-4 py-2 rounded-xl cursor-pointer"
+              className="bg-[#186933] hover:bg-[#124d26] w-full text-white px-4 py-2 rounded-xl cursor-pointer"
             >
               Schedule Pickup
             </button>

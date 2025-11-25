@@ -84,7 +84,7 @@ export function AboutPage() {
       <NavBar />
 
       {/* Hero */}
-      <section className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-20 text-center p-4">
+      <section className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-20 text-center ">
         <h1 className="text-5xl font-bold mb-6">About <span className="text-yellow-300">Bin Wise</span></h1>
         <p className="max-w-3xl mx-auto text-lg">
       At Bin Wise, we believe that small steps can create a big change. Our mission is to make recycling easier, smarter, and more accessible for everyone.
@@ -231,7 +231,7 @@ Together, we can turn waste into a valuable resource. With Bin Wise, every actio
                 Together, we can create a more sustainable future.
               </p>
                 <button 
-                  className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300"
+                  className="bg-green-700 hover:bg-green-900 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition cursor-pointer duration-300"
                   onClick={() => window.location.href = '/pickup'}
                 >
                   Start Recycling Now

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import api from "../api/axios";
 import Toast from "./Toast";
 
@@ -95,6 +95,17 @@ const ReqHistoryCard = ({
       setIsDeleting(false);
     }
   };
+  //to stop scrolling when the deleteconfirm s open
+  useEffect(() => {
+    if (showDeleteConfirm) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+  
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [showDeleteConfirm]);
+  
 
   // Handle modify
   const handleModify = () => {
@@ -116,7 +127,7 @@ const ReqHistoryCard = ({
   const isCompleted = status?.toLowerCase() === 'completed';
 
   return (
-    <>
+    <section>
       {/* Toast Notification */}
       {toast && (
         <Toast
@@ -126,7 +137,7 @@ const ReqHistoryCard = ({
         />
       )}
 
-      <div className="flex flex-col bg-transparent border-2 border-black rounded-[20px] relative text-start p-3 w-full max-w-[400px] mb-3">
+      <div className="flex place-self-center-safe w-full flex-col bg-transparent border-2 border-black rounded-[20px] relative text-start  p-3  mb-3">
         <div className="pr-20">
           {requestId && (
             <p className="text-gray-400 text-xs font-mono">ID: {requestId.slice(-8)}</p>
@@ -179,7 +190,7 @@ const ReqHistoryCard = ({
 
       {/* Custom Delete Confirmation Dialog */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9998] p-4">
+        <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-[9998] p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
             {/* Icon */}
             <div className="flex justify-center mb-4">
@@ -224,9 +235,9 @@ const ReqHistoryCard = ({
                 <span className="text-gray-600">Date:</span>
                 <span className="text-gray-900">{scheduledDate}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex flex-col justify-between sm:flex-row md:flex-row">
                 <span className="text-gray-600">Materials:</span>
-                <span className="text-gray-900">{displayMaterial()}</span>
+                <span className="text-gray-900 ">{displayMaterial()}</span>
               </div>
             </div>
 
@@ -248,7 +259,7 @@ const ReqHistoryCard = ({
           </div>
         </div>
       )}
-    </>
+    </section>
   );
 };
 

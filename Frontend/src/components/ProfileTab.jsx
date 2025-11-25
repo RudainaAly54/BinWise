@@ -138,7 +138,7 @@ const ProfileTabs = () => {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`w-1/3 py-2 text-sm sm:text-base font-semibold capitalize transition-all duration-300
+            className={`w-1/3 py-2 text-xs sm:text-base font-semibold capitalize transition-all duration-300
               ${
                 activeTab === tab.key
                   ? "bg-white text-gray-900 shadow-md rounded-4xl"
@@ -239,7 +239,7 @@ const ProfileTabs = () => {
             <h3 className="text-gray-800 font-semibold mb-4">
               Redeem your points for amazing rewards
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1  sm:grid-cols-1 md:grid-cols-3 gap-4">
               {rewards.map((reward, i) => {
                 const canAfford = (user?.points || 0) >= reward.pointsCost;
                 return (
@@ -280,7 +280,7 @@ const ProfileTabs = () => {
             <h3 className="text-gray-800 font-semibold mb-4">
               Your Achievements
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-4">
               {achievements.map((ach, i) => (
                 <div
                   key={i}

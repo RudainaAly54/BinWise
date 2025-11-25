@@ -6,7 +6,7 @@ const Awarenceheader = (props) => {
             Environmental Awareness
         </h2>
         <p>Learn about recycling's impact, discover best practices, and stay informed about environmental sustainability.</p>
-        <ul className="flex flex-col sm:flex-row flex-wrap justify-center sm:justify-between gap-3 sm:gap-6 text-sm lg:text-base text-gray-800 font-medium shadow-md transition-all duration-300 ease-in-out bg-gray-300 px-2 py-1 mt-3 rounded-4xl">
+        <ul className="grid grid-rows-1 grid-cols-2 md:grid-cols-4 sm:grid-cols-4  justify-center sm:justify-between gap-3 sm:gap-6 text-xs lg:text-base text-gray-800 font-medium  transition-all duration-300 ease-in-out bg-gray-200 px-1 py-1 mt-3 rounded-3xl">
             {[
     { to: "/awareness", label: "Facts & Stats", end: true },
     { to: "recycle", label: "How To Recycle" },
