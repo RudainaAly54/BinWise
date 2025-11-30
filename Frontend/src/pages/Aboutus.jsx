@@ -80,9 +80,9 @@ export function AboutPage() {
   ];
 
   return (
-    <section className="min-h-screen bg-gray-50 ">
+    <section >
       <NavBar />
-
+    <section className="min-h-screen bg-gray-50 overflow-x-hidden ">
       {/* Hero */}
       <section className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-20 text-center ">
         <h1 className="text-5xl font-bold mb-6">About <span className="text-yellow-300">Bin Wise</span></h1>
@@ -242,6 +242,7 @@ Together, we can turn waste into a valuable resource. With Bin Wise, every actio
         </section>
       </div>
       <Footer />
+      </section>
     </section>
   );
 }

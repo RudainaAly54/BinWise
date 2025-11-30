@@ -12,8 +12,11 @@ export default function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
-    fetchPickups();
-    fetchAgents();
+    const loadData = async () => {
+      await fetchPickups();
+      await fetchAgents();
+    };
+    loadData();
   }, []);
 
   const getAuthHeaders = () => {
@@ -31,7 +34,9 @@ export default function AdminDashboard() {
         credentials: "include",
       });
       const data = await res.json();
-      if (data.success) setPickups(data.pickups || []);
+      if (data.success) {
+        setPickups(data.pickups || []);
+      }
     } catch (err) {
       console.error("Fetch pickups error:", err);
     }
@@ -81,15 +86,28 @@ export default function AdminDashboard() {
       const data = await res.json();
 
       if (data.success) {
-        // Update the pickup in state directly
+        // Find the selected agent from agents array
+        const selectedAgent = agents.find(
+          (a) => a._id === activePickup.deliveryAgentId
+        );
+        
+        // Store the assignment in localStorage for persistence
+        const assignments = JSON.parse(localStorage.getItem('pickupAssignments') || '{}');
+        assignments[activePickup._id] = {
+          agentId: activePickup.deliveryAgentId,
+          agentName: selectedAgent?.name,
+          agentEmail: selectedAgent?.email,
+          pickupTime: selectedDate,
+        };
+        localStorage.setItem('pickupAssignments', JSON.stringify(assignments));
+        
+        // Update the pickup in state with the full agent object structure
         setPickups((prev) =>
           prev.map((p) =>
             p._id === activePickup._id
               ? {
                   ...p,
-                  deliveryAgentId: agents.find(
-                    (a) => a._id === activePickup.deliveryAgentId
-                  ),
+                  deliveryAgentId: selectedAgent,
                   pickupTime: selectedDate,
                   status: "assigned",
                 }
@@ -97,7 +115,9 @@ export default function AdminDashboard() {
           )
         );
         setOpenAssign(false);
-      } else alert(data.message);
+      } else {
+        alert(data.message);
+      }
     } catch (err) {
       console.error("Assign pickup error:", err);
     }
@@ -114,35 +134,57 @@ export default function AdminDashboard() {
       const data = await res.json();
       if (data.success) {
         setPickups((prev) =>
-          prev.map((p) =>
-            p._id === id ? { ...p, status: "completed" } : p
-          )
+          prev.map((p) => (p._id === id ? { ...p, status: "completed" } : p))
         );
-      } else alert(data.message);
+      } else {
+        alert(data.message);
+      }
     } catch (err) {
       console.error("Complete pickup error:", err);
     }
   };
 
+  // Enrich pickups with agent data from localStorage
+  const enrichedPickups = useMemo(() => {
+    const assignments = JSON.parse(localStorage.getItem('pickupAssignments') || '{}');
+    
+    return pickups.map((pickup) => {
+      // If backend returns null for deliveryAgentId, check localStorage
+      if (!pickup.deliveryAgentId && assignments[pickup._id]) {
+        const assignment = assignments[pickup._id];
+        return {
+          ...pickup,
+          deliveryAgentId: {
+            _id: assignment.agentId,
+            name: assignment.agentName,
+            email: assignment.agentEmail,
+          },
+          pickupTime: pickup.pickupTime || assignment.pickupTime,
+        };
+      }
+      return pickup;
+    });
+  }, [pickups]);
+
   // Stats
   const stats = useMemo(() => {
-    const total = pickups.length;
-    const pending = pickups.filter((p) => p.status === "pending").length;
-    const assigned = pickups.filter((p) => p.status === "assigned").length;
-    const completed = pickups.filter((p) => p.status === "completed").length;
+    const total = enrichedPickups.length;
+    const pending = enrichedPickups.filter((p) => p.status === "pending").length;
+    const assigned = enrichedPickups.filter((p) => p.status === "assigned").length;
+    const completed = enrichedPickups.filter((p) => p.status === "completed").length;
     return { total, pending, assigned, completed };
-  }, [pickups]);
+  }, [enrichedPickups]);
 
   // Filtered pickups, sorted by most recent first
   const filteredPickups = useMemo(() => {
-    let filtered = pickups;
+    let filtered = enrichedPickups;
     if (statusFilter !== "all") {
-      filtered = pickups.filter((p) => p.status === statusFilter);
+      filtered = enrichedPickups.filter((p) => p.status === statusFilter);
     }
     return filtered.sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
     );
-  }, [pickups, statusFilter]);
+  }, [enrichedPickups, statusFilter]);
 
   return (
     <div className="min-h-screen bg-gray-50">

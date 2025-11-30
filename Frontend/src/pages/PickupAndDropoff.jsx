@@ -29,9 +29,9 @@ const PickupAndDropoff = () => {
   const activeTab = location.pathname.split("/").pop();
 
   return (
-    <section className="overflow-x-hidden">
+    <section>
       <NavBar />
-
+    <div  className="overflow-x-hidden">
       <div className="bg-gray-100 min-h-full pb-10">
         <div className="mx-6">
           <h1 className="text-3xl font-bold text-gray-900 py-6">
@@ -73,6 +73,7 @@ const PickupAndDropoff = () => {
       </div>
 
       <Footer />
+      </div>
     </section>
   );
 };

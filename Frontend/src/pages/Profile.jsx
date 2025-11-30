@@ -36,8 +36,9 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden flex flex-col">
+    <div >
       <NavBar />
+      <div className="min-h-screen overflow-hidden flex flex-col">
 
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         {/* Profile Header */}
@@ -53,6 +54,7 @@ const Profile = () => {
       </main>
 
       <Footer />
+    </div>
     </div>
   );
 };

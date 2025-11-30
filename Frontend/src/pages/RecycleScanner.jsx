@@ -79,8 +79,9 @@ const RecycleScanner = () => {
   const pending = Math.max(dailyGoal - totalProgress, 0);
 
   return (
-    <section className="bg-gray-100 overflow-x-hidden">
+    <section >
       <NavBar />
+      <div className="bg-gray-100 overflow-x-hidden">
       <div className="p-6">
         <h1 className="text-3xl font-bold">Smart Recycling Center</h1>
         <p className="text-gray-600">
@@ -177,6 +178,7 @@ const RecycleScanner = () => {
         </div>
       </div>
       <Footer />
+      </div>
     </section>
   );
 };
