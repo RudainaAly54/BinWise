@@ -2,22 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "Backend/Server.js",
+      "src": "Server.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "Backend/Server.js"
+      "dest": "/Server.js"
     }
-  ],
-  "env": {
-    "PORT": "PORT",
-    "MONGODB_URL": "MONGODB_URL",
-    "JWT_SECRET": "JWT_SECRET",
-    "SMTP_USER": "SMTP_USER",
-    "SMTP_PASSWORD": "SMTP_PASSWORD",
-    "SENDER_EMAIL": "SENDER_EMAIL"
-  }
+  ]
 }

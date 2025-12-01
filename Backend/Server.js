@@ -33,6 +33,7 @@ const allowedOrigins = [
   "http://localhost:5174",
   "http://127.0.0.1:5173",
   "http://127.0.0.1:5174",
+  "https://bin-wise-ntqx2dkq4-nourseens-projects.vercel.app", // ✅ Add your frontend URL
 ];
 
 app.use(
@@ -75,5 +76,15 @@ app.get("/", (req, res) => {
   res.send("Server is running...");
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.get("/", (req, res) => {
+  res.send("Server is running...");
+});
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+// Export for Vercel
+export default app;
