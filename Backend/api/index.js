@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import connectDB from "../config/mongodb.js";
 
-// Routes - import ALL at once to avoid circular dependencies
+// Routes
 import authRouter from "../routes/authRoutes.js";
 import postsRouter from "../routes/postsRoutes.js";
 import usersRouter from "../routes/userRoutes.js";
@@ -39,22 +39,19 @@ app.use(
 // Connect to MongoDB
 connectDB();
 
-// Routes
-app.use("/api/auth", authRouter);
-app.use("/api/posts", postsRouter);
-app.use("/api/users", usersRouter);
-app.use("/api/pickups", pickupRoutes);
-app.use("/api/delivery-agents", deliveryAgentRoutes);
-app.use("/api/centers", centersRoutes);
-app.use("/api/progress", progressRoutes);
-
+// Root route - responds to /api which becomes /
 app.get("/", (req, res) => {
   res.json({ message: "Backend server is running" });
 });
 
-app.get("/api", (req, res) => {
-  res.json({ message: "API is working" });
-});
+// API routes - remove /api prefix since Vercel already routes to /api
+app.use("/auth", authRouter);
+app.use("/posts", postsRouter);
+app.use("/users", usersRouter);
+app.use("/pickups", pickupRoutes);
+app.use("/delivery-agents", deliveryAgentRoutes);
+app.use("/centers", centersRoutes);
+app.use("/progress", progressRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {
