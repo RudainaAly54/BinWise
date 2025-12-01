@@ -39,11 +39,6 @@ app.use(
 // Connect to MongoDB
 connectDB();
 
-// Root route - responds to /api which becomes /
-app.get("/", (req, res) => {
-  res.json({ message: "Backend server is running" });
-});
-
 // API routes - remove /api prefix since Vercel already routes to /api
 app.use("/auth", authRouter);
 app.use("/posts", postsRouter);
@@ -53,6 +48,10 @@ app.use("/delivery-agents", deliveryAgentRoutes);
 app.use("/centers", centersRoutes);
 app.use("/progress", progressRoutes);
 
+// Root route - place AFTER other routes
+app.get("/", (req, res) => {
+  res.json({ message: "Backend server is running" });
+});
 // Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);

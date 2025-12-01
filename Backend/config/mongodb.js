@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 let isConnected = false;
 
 const connectDB = async () => {
-  // Prevent multiple connections in serverless
   if (isConnected) {
     console.log("✅ MongoDB already connected");
     return;
@@ -18,13 +17,14 @@ const connectDB = async () => {
 
     isConnected = true;
     console.log(`✅ MongoDB connected: ${conn.connection.host} / ${conn.connection.name}`);
-
-    // 👇 Print all collections (only on first connection)
-    const collections = await conn.connection.db.listCollections().toArray();
-    console.log("📂 Collections in blogData:", collections.map(c => c.name));
+    
+    // Only log collections in development
+    if (process.env.NODE_ENV !== 'production') {
+      const collections = await conn.connection.db.listCollections().toArray();
+      console.log("📂 Collections in blogData:", collections.map(c => c.name));
+    }
   } catch (error) {
     console.error("❌ MongoDB connection error:", error.message);
-    // Don't exit process in serverless - throw error instead
     throw error;
   }
 };
