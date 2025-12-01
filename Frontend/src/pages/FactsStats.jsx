@@ -13,7 +13,7 @@ import {
 const FactsStats = () => {
   return (
     <div>
-      <div className="grid grid-cols-2  md:grid-cols-4">
+      <div className="grid grid-cols-2 m-3  md:grid-cols-4">
         <Awarencecard title="2.01B" description="Tons of waste generated globally per year" icon={GlobeAltIcon} color="blue" />
         <Awarencecard title="32%" description="Global recycling rate" icon={ArrowPathRoundedSquareIcon} color="green" />
         <Awarencecard title="75%" description="Of waste could be recycled or composted" icon={ArrowTrendingUpIcon} color="purple" />

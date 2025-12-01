@@ -9,8 +9,8 @@ import {
 
 export default function Contact() {
   return (
-    <div className="w-full bg-white py-16">
-      <div className="flex flex-col md:flex-row md:gap-50 md:justify-around text-xl place-self-center-safe">
+    <div className="w-full bg-white px-8 py-16">
+      <div className="flex flex-col text-m md:flex-row md:gap-50 md:justify-around md:text-xl place-self-center-safe">
         
         {/* Social Media Section */}
         <div className="mb-10 md:mb-0">

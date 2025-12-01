@@ -4,8 +4,11 @@ import Badge from "../components/Badge";
 import { Heart, Target, Eye, Users, Award, Globe, Recycle } from "lucide-react";
 import Footer from "../components/Footer";
 import NavBar from "../components/NavBar";
+import { useNavigate } from 'react-router-dom';
+
 
 export function AboutPage() {
+  const navigate = useNavigate();
   const teamMembers = [
     {
         id: 1,
@@ -230,10 +233,10 @@ Together, we can turn waste into a valuable resource. With Bin Wise, every actio
                 Join our community of environmental champions and start your smart recycling journey today. 
                 Together, we can create a more sustainable future.
               </p>
-                <button 
-                  className="bg-green-700 hover:bg-green-900 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition cursor-pointer duration-300"
-                  onClick={() => window.location.href = '/recycle-scanner'}
-                >
+              <button
+      className="bg-green-700 hover:bg-green-900 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition cursor-pointer duration-300"
+      onClick={() => navigate('/recycle-scanner')}
+    >
                   Start Recycling Now
                 </button>
           </div>

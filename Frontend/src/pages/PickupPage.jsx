@@ -343,6 +343,7 @@ const PickupPage = () => {
               <label className="text-black">Pickup Address</label>
               <input
                 type="text"
+                placeholder="Enter Your Address"
                 required
                 value={state.address}
                 onChange={(e) =>
@@ -394,6 +395,7 @@ const PickupPage = () => {
               <label className="text-black">Estimated Weight (kg)</label>
               <input
                 type="number"
+                placeholder="Enter Weight"
                 min={0.1} // now the minimum is 0.1
                 step="0.1" // allows decimal increments like 0.1
                 required

@@ -135,7 +135,7 @@ const handleResendOTP = async () => {
   }, [isLoggedin, userData?.isAccountVerified]);
   
   return (
-    <div className="bg-gray-100 flex flex-col min-h-screen items-center justify-center">
+    <div className="bg-gray-100 flex flex-col min-h-screen overflow-x-hidden  items-center justify-center">
       <div className="p-4 absolute top-4 left-4">
         <img
           onClick={() => navigate("/")}
@@ -147,7 +147,7 @@ const handleResendOTP = async () => {
 
       <form
         onSubmit={onSubmitHandler}
-        className="rounded-lg shadow-lg w-96 text-sm p-8 bg-green-50"
+        className="rounded-lg shadow-lg md:w-96 text-sm p-8 bg-green-50"
       >
         <h1 className="text-center text-2xl font-semibold mb-4">
           Verify Your Email

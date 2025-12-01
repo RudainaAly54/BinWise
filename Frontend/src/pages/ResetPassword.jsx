@@ -62,7 +62,7 @@ const ResetPassword = () => {
       }
     }
   return (
-    <div className="bg-gray-100 flex flex-col min-h-screen ">
+    <div className="bg-gray-100 flex flex-col min-h-screen overflow-x-hidden">
       <div className="p-4">
               <img
                 onClick={() => navigate("/")}
@@ -72,7 +72,7 @@ const ResetPassword = () => {
               />
       </div>
       {!isEmailSent &&
-      <form onSubmit={oneSubmitEmail} className='rounded-lg shadow-lg w-96 text-sm p-8 bg-white self-center flex flex-col'>
+      <form onSubmit={oneSubmitEmail} className='rounded-lg shadow-lg md:w-96 text-sm p-8 mx-4 bg-white self-center flex flex-col'>
       <h1 className="text-center text-2xl font-semibold mb-4">Reset Password</h1>
         <p className="text-center mb-6">
           Enter your registered email address.
