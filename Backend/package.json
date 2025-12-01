@@ -5,14 +5,13 @@
   "main": "Server.js",
   "type": "module",
   "scripts": {
-    "start": "node Server.js",
+    "start": "node api/index.js",
     "dev": "nodemon Server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.2",
-    "cloudinary": "^1.21.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
