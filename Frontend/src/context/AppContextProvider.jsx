@@ -25,10 +25,12 @@ export const AppContextProvider = ({ children }) => {
         console.log("✅ User authenticated:", data.userData.email);
         
         // ✅ Initialize socket connection when user is authenticated
-        if (data.userData.id && !socket) {
-          const socketInstance = initSocket(data.userData.id);
+        // Use _id or id depending on what backend returns
+        const userId = data.userData._id || data.userData.id;
+        if (userId && !socket) {
+          const socketInstance = initSocket(userId);
           setSocket(socketInstance);
-          console.log("📡 Socket initialized for user:", data.userData.id);
+          console.log("📡 Socket initialized for user:", userId);
         }
         
         return data.userData;
@@ -85,10 +87,12 @@ export const AppContextProvider = ({ children }) => {
         console.log("✅ Auth state verified:", data.userData.email);
         
         // ✅ Initialize socket for authenticated user
-        if (data.userData.id && !socket) {
-          const socketInstance = initSocket(data.userData.id);
+        // Use _id or id depending on what backend returns
+        const userId = data.userData._id || data.userData.id;
+        if (userId && !socket) {
+          const socketInstance = initSocket(userId);
           setSocket(socketInstance);
-          console.log("📡 Socket initialized for user:", data.userData.id);
+          console.log("📡 Socket initialized for user:", userId);
         }
       } else {
         setIsLoggedin(false);
