@@ -17,7 +17,7 @@ const NavBar = () => {
   const sendVerificationOtp = async () => {
     try {
       const { data } = await axios.post(
-        `${backendUrl}/api/auth/send-verify-otp`,
+        `${backendUrl}/auth/send-verify-otp`,
         {},
         { withCredentials: true }
       );
@@ -37,7 +37,7 @@ const NavBar = () => {
   const logout = async () => {
     try {
       const { data } = await axios.post(
-        `${backendUrl}/api/auth/logout`,
+        `${backendUrl}/auth/logout`,
         {},
         { withCredentials: true }
       );

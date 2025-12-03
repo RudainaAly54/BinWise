@@ -34,11 +34,11 @@ const ProfileHeader = () => {
     const fetchUserProfile = async () => {
       try {
         // Fetch user data
-        const res = await axios.get("/api/auth/profile", { withCredentials: true });
+        const res = await axios.get("/auth/profile", { withCredentials: true });
         if (res.data.success) setUser(res.data.userData);
 
         // Fetch user pickups
-        const pickupsRes = await axios.get("/api/pickups/my", { withCredentials: true });
+        const pickupsRes = await axios.get("/pickups/my", { withCredentials: true });
         if (pickupsRes.data.success) {
           const pickups = pickupsRes.data.pickups;
 
@@ -96,7 +96,7 @@ const ProfileHeader = () => {
       }
 
       // Send update request
-      const res = await axios.put("/api/auth/update-profile", submitData, {
+      const res = await axios.put("/auth/update-profile", submitData, {
         withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data",

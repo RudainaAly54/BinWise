@@ -18,14 +18,14 @@ const ProfileTabs = () => {
       try {
         // Fetch profile data
         const profileRes = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/auth/profile`,{
+          `${import.meta.env.VITE_BACKEND_URL}/auth/profile`,{
           withCredentials: true,
         });
         if (profileRes.data.success) setUser(profileRes.data.userData);
 
         // Fetch pickups data
         const pickupsRes = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/pickups/my`, {
+          `${import.meta.env.VITE_BACKEND_URL}/pickups/my`, {
           withCredentials: true,
         });
 

@@ -14,7 +14,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/auth/profile`, {
+          `${import.meta.env.VITE_BACKEND_URL}/auth/profile`, {
           withCredentials: true,
         });
         setUser(res.data.userData || res.data.user); 

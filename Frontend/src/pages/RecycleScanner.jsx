@@ -28,7 +28,7 @@ const RecycleScanner = () => {
 
         // Fetch user profile
         const profileRes = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/auth/profile`,
+          `${import.meta.env.VITE_BACKEND_URL}/auth/profile`,
           {
             withCredentials: true,
           }
@@ -38,7 +38,7 @@ const RecycleScanner = () => {
 
         // Fetch user's pickups
         const pickupsRes = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/pickups/my`,
+          `${import.meta.env.VITE_BACKEND_URL}/pickups/my`,
           {
             withCredentials: true, // keep this if your backend uses cookies/auth
           }

@@ -1,10 +1,13 @@
-// src/api/axios.js
 import axios from "axios";
 
+const baseURL =
+  import.meta.env.MODE === "development"
+    ? "/api" // use Vite proxy in dev
+    : import.meta.env.VITE_BACKEND_URL + "/api"; // full URL in prod
+
 const api = axios.create({
-  // ✅ Remove /api since it's already in your backend routes
-  baseURL: import.meta.env.VITE_BACKEND_URL,
-  withCredentials: true, // 👈 always send/receive cookies
+  baseURL,
+  withCredentials: true,
 });
 
 export default api;

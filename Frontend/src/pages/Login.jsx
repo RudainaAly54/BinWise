@@ -31,14 +31,14 @@ const Login = () => {
       let data;
 
       if (state === "Sign Up") {
-        const res = await axios.post(`${backendUrl}/api/auth/register`, {
+        const res = await axios.post(`${backendUrl}/auth/register`, {
           name,
           email,
           password,
         });
         data = res.data;
       } else {
-        const res = await axios.post(`${backendUrl}/api/auth/login`, {
+        const res = await axios.post(`${backendUrl}/auth/login`, {
           email,
           password,
         });

@@ -159,7 +159,7 @@ const PickupPage = () => {
   useEffect(() => {
     if (!isLoggedin || !userData?.id || loadingUser) return;
     axios
-      .get(`${backendUrl}/api/auth/profile`, { withCredentials: true })
+      .get(`${backendUrl}/auth/profile`, { withCredentials: true })
       .then((res) => {
         if (res.data.success && res.data.userData.address)
           dispatch({ type: "SET_ADDRESS", payload: res.data.userData.address });
@@ -172,7 +172,7 @@ const PickupPage = () => {
     if (!isLoggedin) return setPickupHistory([]);
     setLoading(true);
     try {
-      const res = await axios.get(`${backendUrl}/api/pickups/my`, {
+      const res = await axios.get(`${backendUrl}/pickups/my`, {
         withCredentials: true,
       });
       setPickupHistory(res.data.success ? res.data.pickups.slice(0, 3) : []);
@@ -222,12 +222,12 @@ const PickupPage = () => {
 
     try {
       if (editingId) {
-        await axios.put(`${backendUrl}/api/pickups/${editingId}`, pickupData, {
+        await axios.put(`${backendUrl}/pickups/${editingId}`, pickupData, {
           withCredentials: true,
         });
         setEditingId(null);
       } else {
-        await axios.post(`${backendUrl}/api/pickups`, pickupData, {
+        await axios.post(`${backendUrl}/pickups`, pickupData, {
           withCredentials: true,
         });
       }
