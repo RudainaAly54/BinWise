@@ -191,76 +191,87 @@ const fetchPickups = async () => {
     setLoading(false);
   }
 };
+useEffect(() => {
+  fetchPickups();
+}, [isLoggedin]);
 
 useEffect(() => {
-  if (!socket || !isLoggedin) {
+  if (!socket || !isLoggedin || !userData?.id) {
     console.log("⚠️ Socket not available or user not logged in");
     return;
   }
 
-  console.log("📡 Setting up socket listeners in PickupPage");
+  console.log("📡 Setting up socket listeners for user:", userData.id);
 
-  // Listen for new pickup creation
+  // Ensure user is authenticated
+  socket.emit("authenticate", userData.id);
+
+  // ✅ FIXED: Listen to user-specific events with -user suffix
   const handlePickupCreated = (data) => {
-    console.log("🆕 Pickup created event received:", data);
+    console.log("🆕 Pickup created:", data);
     toast.success("Pickup request created successfully!");
-    fetchPickups(); // Refresh pickup history
+    setPickupHistory(prev => [data.pickup, ...prev.slice(0, 2)]);
   };
 
-  // Listen for pickup completion
+  const handlePickupAssignedUser = (data) => {
+    console.log("🚚 Pickup assigned:", data);
+    toast.info(data.message || "Agent assigned to your pickup!");
+    setPickupHistory(prev =>
+      prev.map(p => p._id === data.pickup._id ? data.pickup : p)
+    );
+  };
+
   const handlePickupCompleted = (data) => {
-    console.log("✅ Pickup completed event received:", data);
-    toast.success("Pickup completed! Points awarded.");
-    fetchPickups();
+    console.log("✅ Pickup completed:", data);
+    setPickupHistory(prev =>
+      prev.map(p => p._id === data.pickup._id ? data.pickup : p)
+    );
   };
 
-  // Listen for points awarded
   const handlePointsAwarded = (data) => {
-    console.log("💰 Points awarded event received:", data);
-    toast.success(data.message || `You earned ${data.points} points!`);
-    fetchPickups();
+    console.log("💰 Points awarded:", data);
+    toast.success(data.message);
+    setPickupHistory(prev =>
+      prev.map(p =>
+        p._id === data.pickupId
+          ? { ...p, status: 'completed', awardedPoints: data.points, gains: data.gains }
+          : p
+      )
+    );
   };
 
-  // Listen for pickup updates
-  const handlePickupUpdated = (data) => {
-    console.log("✏️ Pickup updated event received:", data);
-    toast.info("Pickup request updated");
-    fetchPickups();
+  const handlePickupUpdatedUser = (data) => {
+    console.log("✏️ Pickup updated:", data);
+    toast.info("Pickup updated");
+    setPickupHistory(prev =>
+      prev.map(p => p._id === data.pickup._id ? data.pickup : p)
+    );
   };
 
-  // Listen for pickup deletion
-  const handlePickupDeleted = (data) => {
-    console.log("🗑️ Pickup deleted event received:", data);
-    toast.info("Pickup request deleted");
-    fetchPickups();
+  const handlePickupDeletedUser = (data) => {
+    console.log("🗑️ Pickup deleted:", data);
+    toast.info(data.message);
+    setPickupHistory(prev => prev.filter(p => p._id !== data.pickupId));
   };
 
-  // Listen for pickup assignment
-  const handlePickupAssigned = (data) => {
-    console.log("🚚 Pickup assigned event received:", data);
-    toast.info("Your pickup has been assigned to an agent!");
-    fetchPickups();
-  };
-
-  // Register all event listeners
+  // ✅ Register with correct event names
   socket.on("pickup-created", handlePickupCreated);
+  socket.on("pickup-assigned-user", handlePickupAssignedUser); // Changed!
   socket.on("pickup-completed", handlePickupCompleted);
   socket.on("points-awarded", handlePointsAwarded);
-  socket.on("pickup-updated", handlePickupUpdated);
-  socket.on("pickup-deleted", handlePickupDeleted);
-  socket.on("pickup-assigned", handlePickupAssigned);
+  socket.on("pickup-updated-user", handlePickupUpdatedUser); // Changed!
+  socket.on("pickup-deleted-user", handlePickupDeletedUser); // Changed!
 
-  // Cleanup listeners on unmount
   return () => {
     socket.off("pickup-created", handlePickupCreated);
+    socket.off("pickup-assigned-user", handlePickupAssignedUser);
     socket.off("pickup-completed", handlePickupCompleted);
     socket.off("points-awarded", handlePointsAwarded);
-    socket.off("pickup-updated", handlePickupUpdated);
-    socket.off("pickup-deleted", handlePickupDeleted);
-    socket.off("pickup-assigned", handlePickupAssigned);
-    console.log("🧹 Socket listeners cleaned up in PickupPage");
+    socket.off("pickup-updated-user", handlePickupUpdatedUser);
+    socket.off("pickup-deleted-user", handlePickupDeletedUser);
   };
-}, [socket, isLoggedin]);
+}, [socket, isLoggedin, userData?.id]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -298,18 +309,21 @@ useEffect(() => {
         await api.put(`${backendUrl}/api/pickups/${editingId}`, pickupData, {
           withCredentials: true,
         });
+        toast.success("Pickup updated!");
         setEditingId(null);
       } else {
         await api.post(`${backendUrl}/api/pickups`, pickupData, {
           withCredentials: true,
         });
+        toast.success("Pickup created!");
       }
-      fetchPickups();
+      // ❌ REMOVE THIS LINE: fetchPickups();
       dispatch({ type: "RESET_FORM" });
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       console.error(err);
+      toast.error("Failed to schedule pickup");
     } finally {
       setSubmitting(false);
     }
