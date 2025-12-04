@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AppContent } from "./AppContext";
 import api from "../api/axios";
 import { initSocket, disconnectSocket } from "../utils/socket";
@@ -10,6 +10,21 @@ export const AppContextProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [socket, setSocket] = useState(null);
+  
+  // ✅ Use ref to track if socket is already initialized
+  const socketInitialized = useRef(false);
+
+  // Helper to initialize socket (only once)
+  const initializeSocket = (userId) => {
+    if (!userId || socketInitialized.current) {
+      return;
+    }
+
+    console.log("📡 Initializing socket for user:", userId);
+    const socketInstance = initSocket(userId);
+    setSocket(socketInstance);
+    socketInitialized.current = true;
+  };
 
   // Fetch current user data
   const getUserData = async () => {
@@ -24,14 +39,9 @@ export const AppContextProvider = ({ children }) => {
         setIsLoggedin(true);
         console.log("✅ User authenticated:", data.userData.email);
         
-        // ✅ Initialize socket connection when user is authenticated
-        // Use _id or id depending on what backend returns
+        // Initialize socket
         const userId = data.userData._id || data.userData.id;
-        if (userId && !socket) {
-          const socketInstance = initSocket(userId);
-          setSocket(socketInstance);
-          console.log("📡 Socket initialized for user:", userId);
-        }
+        initializeSocket(userId);
         
         return data.userData;
       } else {
@@ -86,14 +96,9 @@ export const AppContextProvider = ({ children }) => {
         setUserData(data.userData);
         console.log("✅ Auth state verified:", data.userData.email);
         
-        // ✅ Initialize socket for authenticated user
-        // Use _id or id depending on what backend returns
+        // Initialize socket
         const userId = data.userData._id || data.userData.id;
-        if (userId && !socket) {
-          const socketInstance = initSocket(userId);
-          setSocket(socketInstance);
-          console.log("📡 Socket initialized for user:", userId);
-        }
+        initializeSocket(userId);
       } else {
         setIsLoggedin(false);
         setUserData(null);
@@ -122,7 +127,9 @@ export const AppContextProvider = ({ children }) => {
 
     // Cleanup socket on unmount
     return () => {
+      console.log("🧹 Cleaning up socket connection");
       disconnectSocket();
+      socketInitialized.current = false;
     };
   }, []);
 
@@ -137,6 +144,7 @@ export const AppContextProvider = ({ children }) => {
       // Disconnect socket
       disconnectSocket();
       setSocket(null);
+      socketInitialized.current = false;
       
       // Clear client-side storage
       localStorage.removeItem("token");
@@ -150,6 +158,7 @@ export const AppContextProvider = ({ children }) => {
       // Still clear local data even if API call fails
       disconnectSocket();
       setSocket(null);
+      socketInitialized.current = false;
       localStorage.removeItem("token");
       setIsLoggedin(false);
       setUserData(null);
@@ -167,7 +176,7 @@ export const AppContextProvider = ({ children }) => {
     refreshUserData,
     logout,
     loadingUser,
-    socket, // ✅ Expose socket to all components
+    socket,
   };
 
   return <AppContent.Provider value={value}>{children}</AppContent.Provider>;

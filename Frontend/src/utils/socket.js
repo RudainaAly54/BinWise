@@ -44,4 +44,37 @@ socket.on("reconnect_failed", () => {
   console.error("❌ Socket reconnection failed after all attempts");
 });
 
+// Helper functions for managing socket connection
+export const initSocket = (userId) => {
+  console.log("🚀 Initializing socket for user:", userId);
+  
+  if (!socket.connected) {
+    socket.connect();
+  }
+  
+  if (userId) {
+    // Wait for connection before authenticating
+    if (socket.connected) {
+      socket.emit("authenticate", userId);
+      socket.emit("join-user-room", userId);
+    } else {
+      socket.once("connect", () => {
+        socket.emit("authenticate", userId);
+        socket.emit("join-user-room", userId);
+      });
+    }
+  }
+  
+  return socket;
+};
+
+export const disconnectSocket = () => {
+  if (socket.connected) {
+    socket.disconnect();
+    console.log("🔌 Socket manually disconnected");
+  }
+};
+
+export const getSocket = () => socket;
+
 export default socket;
