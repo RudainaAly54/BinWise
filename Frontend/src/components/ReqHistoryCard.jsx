@@ -17,6 +17,11 @@ const ReqHistoryCard = ({
   gains,
   instructions,    // <-- new prop
 }) => {
+  console.log("🔍 ReqHistoryCard received:", {
+    requestId,
+    requestIdLength: requestId?.length,
+    isValidObjectId: requestId?.length === 24,
+  });
   const [isDeleting, setIsDeleting] = useState(false);
   const [isModifying, setIsModifying] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -51,6 +56,13 @@ const ReqHistoryCard = ({
   const handleCancelDelete = () => setShowDeleteConfirm(false);
 
   const handleConfirmDelete = async () => {
+    // ✅ ADD THIS DEBUG LOG
+    console.log("🗑️ Attempting to delete pickup:", {
+      requestId,
+      requestIdLength: requestId?.length,
+      fullUrl: `/api/pickups/${requestId}`,
+    });
+
     setIsDeleting(true);
     setShowDeleteConfirm(false);
 
@@ -63,6 +75,11 @@ const ReqHistoryCard = ({
         showToast(res.data.message || "Failed to delete pickup", "error");
       }
     } catch (error) {
+      console.error("❌ Delete error details:", {
+        requestId,
+        error: error.response?.data,
+        status: error.response?.status,
+      });
       const errorMessage = error.response?.data?.message || "Failed to delete pickup";
       showToast(errorMessage, "error");
     } finally {

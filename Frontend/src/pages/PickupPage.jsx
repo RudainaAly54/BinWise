@@ -584,24 +584,20 @@ useEffect(() => {
                 pickupHistory.map((pickup) => (
                   <ReqHistoryCard
                     key={pickup._id}
-                    date={new Date(pickup.createdAt).toLocaleDateString(
-                      "en-EG"
-                    )}
+                    date={new Date(pickup.createdAt).toLocaleDateString("en-EG")}
                     material={pickup.items.map((i) => i.type).join(", ")}
                     items={pickup.items}
                     time={pickup.time_slot}
                     status={pickup.status}
                     address={pickup.address}
                     weight={pickup.weight}
-                    scheduledDate={new Date(
-                      pickup.pickupTime
-                    ).toLocaleDateString("en-EG")}
-                    requestId={pickup._id}
+                    scheduledDate={new Date(pickup.pickupTime).toLocaleDateString("en-EG")}
+                    requestId={pickup._id}  // ✅ Make sure this is the full MongoDB _id
                     onDelete={handleDelete}
                     onUpdate={handleUpdate}
                     points={pickup.awardedPoints}
                     gains={pickup.gains}
-                    instructions={pickup.instructions} // <-- add this
+                    instructions={pickup.instructions}
                   />
                 ))
               ) : (
