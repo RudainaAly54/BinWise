@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useContext } from "react"; // ✅ ADD useContext
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import NavBar from "../components/NavBar.jsx";
 import { AppContent } from "../context/AppContext";
 
@@ -12,8 +12,8 @@ export default function AdminDashboard() {
   const [selectedDate, setSelectedDate] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   
-  // ✅ Get socket from context
-  const { socket } = useContext(AppContent);
+  // ✅ Get socket and userData from context
+  const { socket, userData } = useContext(AppContent);
 
   useEffect(() => {
     const loadData = async () => {
@@ -23,7 +23,28 @@ export default function AdminDashboard() {
     loadData();
   }, []);
 
-  // ✅ Socket listeners
+  // ✅ NEW: Join admin room when socket connects
+  useEffect(() => {
+    if (!socket || !userData) {
+      console.log("⚠️ Socket or user data not available yet");
+      return;
+    }
+
+    // Only join admin room if user is actually an admin
+    if (userData.role === 'admin') {
+      console.log("👔 Joining admin room...");
+      socket.emit('join-admin-room');
+      
+      // Optional: Listen for confirmation (if your backend sends one)
+      socket.once('authenticated', (data) => {
+        console.log("✅ Admin authenticated in admin room:", data);
+      });
+    } else {
+      console.log("⚠️ User is not admin, skipping admin room join");
+    }
+  }, [socket, userData]);
+
+  // ✅ Socket listeners for real-time updates
   useEffect(() => {
     if (!socket) {
       console.log("⚠️ Socket not available in AdminDashboard");
@@ -147,22 +168,12 @@ export default function AdminDashboard() {
       const data = await res.json();
 
       if (data.success) {
-        // Find the selected agent from agents array
+        // ✅ Socket event will trigger fetchPickups automatically
+        // But we can also update local state immediately for instant feedback
         const selectedAgent = agents.find(
           (a) => a._id === activePickup.deliveryAgentId
         );
         
-        // Store the assignment in localStorage for persistence
-        const assignments = JSON.parse(localStorage.getItem('pickupAssignments') || '{}');
-        assignments[activePickup._id] = {
-          agentId: activePickup.deliveryAgentId,
-          agentName: selectedAgent?.name,
-          agentEmail: selectedAgent?.email,
-          pickupTime: selectedDate,
-        };
-        localStorage.setItem('pickupAssignments', JSON.stringify(assignments));
-        
-        // Update the pickup in state with the full agent object structure
         setPickups((prev) =>
           prev.map((p) =>
             p._id === activePickup._id
@@ -194,6 +205,8 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (data.success) {
+        // ✅ Socket event will trigger fetchPickups automatically
+        // But we can also update immediately
         setPickups((prev) =>
           prev.map((p) => (p._id === id ? { ...p, status: "completed" } : p))
         );
@@ -205,48 +218,25 @@ export default function AdminDashboard() {
     }
   };
 
-  // Enrich pickups with agent data from localStorage
-  const enrichedPickups = useMemo(() => {
-    const assignments = JSON.parse(localStorage.getItem('pickupAssignments') || '{}');
-    
-    return pickups.map((pickup) => {
-      // If backend returns null for deliveryAgentId, check localStorage
-      if (!pickup.deliveryAgentId && assignments[pickup._id]) {
-        const assignment = assignments[pickup._id];
-        return {
-          ...pickup,
-          deliveryAgentId: {
-            _id: assignment.agentId,
-            name: assignment.agentName,
-            email: assignment.agentEmail,
-          },
-          pickupTime: pickup.pickupTime || assignment.pickupTime,
-        };
-      }
-      return pickup;
-    });
-  }, [pickups]);
-
   // Stats
   const stats = useMemo(() => {
-    const total = enrichedPickups.length;
-    const pending = enrichedPickups.filter((p) => p.status === "pending").length;
-    const assigned = enrichedPickups.filter((p) => p.status === "assigned").length;
-    const completed = enrichedPickups.filter((p) => p.status === "completed").length;
+    const total = pickups.length;
+    const pending = pickups.filter((p) => p.status === "pending").length;
+    const assigned = pickups.filter((p) => p.status === "assigned").length;
+    const completed = pickups.filter((p) => p.status === "completed").length;
     return { total, pending, assigned, completed };
-  }, [enrichedPickups]);
+  }, [pickups]);
 
   // Filtered pickups, sorted by most recent first
   const filteredPickups = useMemo(() => {
-    let filtered = enrichedPickups;
+    let filtered = pickups;
     if (statusFilter !== "all") {
-      filtered = enrichedPickups.filter((p) => p.status === statusFilter);
+      filtered = pickups.filter((p) => p.status === statusFilter);
     }
     return filtered.sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
     );
-  }, [enrichedPickups, statusFilter]);
-
+  }, [pickups, statusFilter]);
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
