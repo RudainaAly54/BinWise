@@ -152,34 +152,41 @@ export default function AdminDashboard() {
   };
 
   // Assign pickup to agent
-  const handleAssign = async () => {
-    if (!activePickup.deliveryAgentId) return alert("Select agent");
+// Assign pickup to agent
+const handleAssign = async () => {
+  if (!activePickup.deliveryAgentId) return alert("Select agent");
 
-    try {
-      const res = await fetch(`${API_URL}/api/pickups/${activePickup._id}/assign`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        credentials: "include",
-        body: JSON.stringify({
-          deliveryAgentId: activePickup.deliveryAgentId,
-          pickupTime: selectedDate,
-        }),
-      });
-      const data = await res.json();
+  try {
+    const res = await fetch(`${API_URL}/api/pickups/${activePickup._id}/assign`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      credentials: "include",
+      body: JSON.stringify({
+        deliveryAgentId: activePickup.deliveryAgentId,
+        pickupTime: selectedDate,
+      }),
+    });
+    const data = await res.json();
 
-      if (data.success) {
-        // Close modal first
-        setOpenAssign(false);
-        
-        // Fetch fresh data from backend to ensure populated agent info
-        await fetchPickups();
-      } else {
-        alert(data.message);
-      }
-    } catch (err) {
-      console.error("Assign pickup error:", err);
+    if (data.success) {
+      console.log("✅ Assignment response:", data.pickup);
+      console.log("✅ Agent info:", data.pickup?.deliveryAgentId);
+      
+      // Update local state immediately with the response data
+      setPickups((prev) =>
+        prev.map((p) =>
+          p._id === activePickup._id ? data.pickup : p
+        )
+      );
+      
+      setOpenAssign(false);
+    } else {
+      alert(data.message);
     }
-  };
+  } catch (err) {
+    console.error("Assign pickup error:", err);
+  }
+};
 
   // Mark pickup as completed
   const handleComplete = async (id) => {
