@@ -45,15 +45,22 @@ const ProfileTabs = () => {
 
             // 🔥 Map pickups to activities with all details
             const mappedActivities = pickups.map((pickup) => {
-              const status = pickup.status.charAt(0).toUpperCase() + pickup.status.slice(1);
               const points = pickup.awardedPoints || 0;
               const isCompleted = pickup.status === "completed";
 
               // Real gains from backend (fallback to calculation)
               const totalMoney = pickup.gains || (points * 0.15);
 
+              // ✅ Only show "Pickup Completed" if completed, otherwise just "Pickup Pending/Assigned"
+              let actionText = "Pickup Pending"; // Default to pending
+              if (pickup.status === "completed") {
+                actionText = "Pickup Completed";
+              } else if (pickup.status === "assigned") {
+                actionText = "Pickup Assigned";
+              }
+
               return {
-                action: `Pickup ${status}`,
+                action: actionText,
                 date: pickup.createdAt,
                 Points: points,
                 gains: totalMoney,
