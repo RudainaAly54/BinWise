@@ -4,23 +4,23 @@ import { FaArrowRight, FaBars, FaTimes } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AppContent } from "../context/AppContext";
 import { toast } from "react-toastify";
-import axios from "axios";
+import api from "../api/axios"; // ✅ FIXED: Use configured axios instance
 
 const NavBar = () => {
   const navigate = useNavigate();
-  const { userData, backendUrl, setUserData, setIsLoggedin } =
-    useContext(AppContent);
+  const { userData, setUserData, setIsLoggedin } = useContext(AppContent);
 
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Send verification OTP
+  // ✅ FIXED: Send verification OTP using api instance with token
   const sendVerificationOtp = async () => {
     try {
-      const { data } = await axios.post(
-        `${backendUrl}/api/auth/send-verify-otp`,
-        {},
-        { withCredentials: true }
-      );
+      console.log("📧 Sending verification OTP...");
+      
+      // ✅ api instance automatically includes token from localStorage
+      const { data } = await api.post("/api/auth/send-verify-otp");
+
+      console.log("✅ OTP Response:", data);
 
       if (data.success) {
         toast.success(data.message || "Verification email sent!");
@@ -29,20 +29,23 @@ const NavBar = () => {
         toast.error(data.message || "Failed to send OTP");
       }
     } catch (error) {
+      console.error("❌ Send OTP error:", error);
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
-  // Logout user
+  // ✅ FIXED: Logout using api instance
   const logout = async () => {
     try {
-      const { data } = await axios.post(
-        `${backendUrl}/api/auth/logout`,
-        {},
-        { withCredentials: true }
-      );
+      console.log("🚪 Logging out...");
+      
+      // ✅ api instance automatically includes token from localStorage
+      const { data } = await api.post("/api/auth/logout");
 
       if (data.success) {
+        // Clear token from localStorage
+        localStorage.removeItem("token");
+        
         setIsLoggedin(false);
         setUserData(null);
         toast.success("Logged out successfully");
@@ -51,6 +54,7 @@ const NavBar = () => {
         toast.error(data.message || "Logout failed");
       }
     } catch (error) {
+      console.error("❌ Logout error:", error);
       toast.error(error.response?.data?.message || "Logout failed");
     }
   };
@@ -58,8 +62,8 @@ const NavBar = () => {
   //NavLink styling function
   const navLinkClass = ({ isActive }) =>
     isActive
-  ? "text-[#186933] font-semibold drop-shadow-[0_1px_3px_rgba(24,105,51,0.5)]"
-  : "hover:text-[#186933]";
+      ? "text-[#186933] font-semibold drop-shadow-[0_1px_3px_rgba(24,105,51,0.5)]"
+      : "hover:text-[#186933]";
 
   return (
     <nav className="sticky w-full flex justify-between items-center p-4 bg-white shadow-sm top-0 z-50">
