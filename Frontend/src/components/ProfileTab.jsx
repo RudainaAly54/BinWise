@@ -67,11 +67,24 @@ const ProfileTabs = () => {
                 isCompleted: isCompleted,
                 status: pickup.status,
                 items: pickup.items || [],
+                isPickup: true, // ✅ Mark as pickup to avoid duplicates
               };
             });
 
-            // ✅ Get user activities from profile
-            const userActivities = Array.isArray(userData.activity) ? userData.activity : [];
+            // ✅ Get user activities from profile, excluding pickup-related activities
+            const userActivities = Array.isArray(userData.activity) 
+              ? userData.activity.filter(activity => {
+                  // ✅ Filter out activities that match pickup creation patterns
+                  const action = activity.action?.toLowerCase() || "";
+                  const isPickupActivity = 
+                    action.includes("pickup") || 
+                    action.includes("created pickup") ||
+                    action.includes("pickup request");
+                  
+                  // Keep non-pickup activities only
+                  return !isPickupActivity;
+                })
+              : [];
             
             // ✅ Merge and sort by date (most recent first)
             const allActivities = [...mappedActivities, ...userActivities].sort(
@@ -79,6 +92,8 @@ const ProfileTabs = () => {
             );
             
             console.log("📊 Total activities:", allActivities.length);
+            console.log("   - Pickups:", mappedActivities.length);
+            console.log("   - Other activities:", userActivities.length);
             setActivities(allActivities);
 
             // Calculate unique recycling days (completed pickups only)
@@ -90,15 +105,17 @@ const ProfileTabs = () => {
           }
         } catch (pickupErr) {
           console.error("⚠️ Error fetching pickups:", pickupErr);
-          // Fallback to profile activities only
-          const userActivities = Array.isArray(userData.activity) ? userData.activity : [];
+          // Fallback to profile activities only (still filter pickup activities)
+          const userActivities = Array.isArray(userData.activity) 
+            ? userData.activity.filter(activity => {
+                const action = activity.action?.toLowerCase() || "";
+                return !action.includes("pickup") && 
+                       !action.includes("created pickup") &&
+                       !action.includes("pickup request");
+              })
+            : [];
           setActivities(userActivities.sort((a, b) => new Date(b.date) - new Date(a.date)));
         }
-        
-        // Use daysRecycled from user profile if pickups fetch failed
-        // if (!pickups || pickups.length === 0) {
-        //   setDaysRecycled(userData.daysRecycled || 0);
-        // }
       }
     } catch (err) {
       console.error("❌ Error fetching profile data:", err);
@@ -281,7 +298,7 @@ const ProfileTabs = () => {
                   // Determine activity status and type
                   const isCompleted = item.isCompleted || item.action?.toLowerCase().includes("completed");
                   const isAssigned = item.status === "assigned" || item.action?.toLowerCase().includes("assigned");
-                  const isPending = item.status === "pending" || item.action?.toLowerCase().includes("pending") || item.action?.toLowerCase().includes("created");
+                  const isPending = item.status === "pending" || item.action?.toLowerCase().includes("pending");
                   
                   // Get status text
                   let statusText = item.status || "completed";
