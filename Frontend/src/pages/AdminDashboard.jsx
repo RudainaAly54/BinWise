@@ -152,41 +152,46 @@ export default function AdminDashboard() {
   };
 
   // Assign pickup to agent
-// Assign pickup to agent
-const handleAssign = async () => {
-  if (!activePickup.deliveryAgentId) return alert("Select agent");
+  const handleAssign = async () => {
+    if (!activePickup.deliveryAgentId) return alert("Select agent");
 
-  try {
-    const res = await fetch(`${API_URL}/api/pickups/${activePickup._id}/assign`, {
-      method: "PUT",
-      headers: getAuthHeaders(),
-      credentials: "include",
-      body: JSON.stringify({
-        deliveryAgentId: activePickup.deliveryAgentId,
-        pickupTime: selectedDate,
-      }),
-    });
-    const data = await res.json();
+    try {
+      const res = await fetch(`${API_URL}/api/pickups/${activePickup._id}/assign`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        credentials: "include",
+        body: JSON.stringify({
+          deliveryAgentId: activePickup.deliveryAgentId,
+          pickupTime: selectedDate,
+        }),
+      });
+      const data = await res.json();
 
-    if (data.success) {
-      console.log("✅ Assignment response:", data.pickup);
-      console.log("✅ Agent info:", data.pickup?.deliveryAgentId);
-      
-      // Update local state immediately with the response data
-      setPickups((prev) =>
-        prev.map((p) =>
-          p._id === activePickup._id ? data.pickup : p
-        )
-      );
-      
-      setOpenAssign(false);
-    } else {
-      alert(data.message);
+      if (data.success) {
+        console.log("✅ Full assignment response:", JSON.stringify(data, null, 2));
+        console.log("✅ Agent info:", data.pickup?.deliveryAgentId);
+        
+        // If agent info is missing, fetch fresh data
+        if (!data.pickup?.deliveryAgentId) {
+          console.log("⚠️ Agent info missing in response, fetching fresh data...");
+          await fetchPickups();
+        } else {
+          // Update local state immediately with the response data
+          setPickups((prev) =>
+            prev.map((p) =>
+              p._id === activePickup._id ? data.pickup : p
+            )
+          );
+        }
+        
+        setOpenAssign(false);
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error("Assign pickup error:", err);
     }
-  } catch (err) {
-    console.error("Assign pickup error:", err);
-  }
-};
+  };
 
   // Mark pickup as completed
   const handleComplete = async (id) => {
