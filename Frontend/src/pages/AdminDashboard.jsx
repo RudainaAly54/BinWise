@@ -152,46 +152,52 @@ export default function AdminDashboard() {
   };
 
   // Assign pickup to agent
-  const handleAssign = async () => {
-    if (!activePickup.deliveryAgentId) return alert("Select agent");
+// Assign pickup to agent
+const handleAssign = async () => {
+  if (!activePickup.deliveryAgentId) return alert("Select agent");
 
-    try {
-      const res = await fetch(`${API_URL}/api/pickups/${activePickup._id}/assign`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        credentials: "include",
-        body: JSON.stringify({
-          deliveryAgentId: activePickup.deliveryAgentId,
-          pickupTime: selectedDate,
-        }),
-      });
-      const data = await res.json();
+  console.log("🚚 Attempting to assign pickup:");
+  console.log("   Pickup ID:", activePickup._id);
+  console.log("   Selected Agent ID:", activePickup.deliveryAgentId);
+  console.log("   Available agents:", agents);
 
-      if (data.success) {
-        console.log("✅ Full assignment response:", JSON.stringify(data, null, 2));
-        console.log("✅ Agent info:", data.pickup?.deliveryAgentId);
-        
-        // If agent info is missing, fetch fresh data
-        if (!data.pickup?.deliveryAgentId) {
-          console.log("⚠️ Agent info missing in response, fetching fresh data...");
-          await fetchPickups();
-        } else {
-          // Update local state immediately with the response data
-          setPickups((prev) =>
-            prev.map((p) =>
-              p._id === activePickup._id ? data.pickup : p
-            )
-          );
-        }
-        
-        setOpenAssign(false);
+  try {
+    const res = await fetch(`${API_URL}/api/pickups/${activePickup._id}/assign`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      credentials: "include",
+      body: JSON.stringify({
+        deliveryAgentId: activePickup.deliveryAgentId,
+        pickupTime: selectedDate,
+      }),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      console.log("✅ Full assignment response:", JSON.stringify(data, null, 2));
+      console.log("✅ Agent info:", data.pickup?.deliveryAgentId);
+      
+      // If agent info is missing, fetch fresh data
+      if (!data.pickup?.deliveryAgentId) {
+        console.log("⚠️ Agent info missing in response, fetching fresh data...");
+        await fetchPickups();
       } else {
-        alert(data.message);
+        // Update local state immediately with the response data
+        setPickups((prev) =>
+          prev.map((p) =>
+            p._id === activePickup._id ? data.pickup : p
+          )
+        );
       }
-    } catch (err) {
-      console.error("Assign pickup error:", err);
+      
+      setOpenAssign(false);
+    } else {
+      alert(data.message);
     }
-  };
+  } catch (err) {
+    console.error("Assign pickup error:", err);
+  }
+};
 
   // Mark pickup as completed
   const handleComplete = async (id) => {
