@@ -235,6 +235,7 @@ const ProfileTabs = () => {
                       }`}
                     >
                       <div className="flex-1">
+                        <div className="flex gap-1 items-center">
                           <p className="font-medium text-gray-800">{item.action}</p>
                           <span
                           className={`text-xs font-medium px-2 py-1 rounded-full ${
@@ -247,6 +248,7 @@ const ProfileTabs = () => {
                         >
                           {statusText}
                         </span>
+                        </div>
                         <p className="text-sm text-gray-500 mt-1">
                           {new Date(item.date).toLocaleDateString()}
                         </p>
