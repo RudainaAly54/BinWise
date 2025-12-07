@@ -34,11 +34,15 @@ const ProfileHeader = () => {
     const fetchUserProfile = async () => {
       try {
         // Fetch user data
-        const res = await api.get("/api/auth/profile", { withCredentials: true });
+        const res = await api.get("/api/auth/profile", {
+          withCredentials: true,
+        });
         if (res.data.success) setUser(res.data.userData);
 
         // Fetch user pickups
-        const pickupsRes = await api.get("/api/pickups/my", { withCredentials: true });
+        const pickupsRes = await api.get("/api/pickups/my", {
+          withCredentials: true,
+        });
         if (pickupsRes.data.success) {
           const pickups = pickupsRes.data.pickups;
 
@@ -53,7 +57,9 @@ const ProfileHeader = () => {
 
           // Set image preview URL
           const profileImageUrl = res.data.userData.profileImage
-            ? `${import.meta.env.VITE_BACKEND_URL}${res.data.userData.profileImage}`
+            ? `${import.meta.env.VITE_BACKEND_URL}${
+                res.data.userData.profileImage
+              }`
             : null;
 
           setImagePreview(profileImageUrl);
@@ -105,7 +111,10 @@ const ProfileHeader = () => {
       // Only append image if a new file was selected
       if (formData.profileImage && formData.profileImage instanceof File) {
         submitData.append("profileImage", formData.profileImage);
-        console.log("📤 Uploading new profile image:", formData.profileImage.name);
+        console.log(
+          "📤 Uploading new profile image:",
+          formData.profileImage.name
+        );
       }
 
       console.log("📤 Submitting profile update...");
@@ -126,7 +135,9 @@ const ProfileHeader = () => {
 
         // Update image preview with new URL from server
         const newImageUrl = res.data.userData.profileImage
-          ? `${import.meta.env.VITE_BACKEND_URL}${res.data.userData.profileImage}`
+          ? `${import.meta.env.VITE_BACKEND_URL}${
+              res.data.userData.profileImage
+            }`
           : imagePreview;
 
         setImagePreview(newImageUrl);
@@ -155,7 +166,8 @@ const ProfileHeader = () => {
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full">
         <img
           src={
-            imagePreview || "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+            imagePreview ||
+            "https://cdn-icons-png.flaticon.com/512/847/847969.png"
           }
           alt="Profile"
           className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-green-500 object-cover shadow-md"
@@ -165,7 +177,9 @@ const ProfileHeader = () => {
             {formData.name}
           </h2>
           <p className="text-gray-500 text-xs sm:text-sm">{formData.email}</p>
-          <p className="text-gray-600 text-xs sm:text-sm mt-1">{formData.address}</p>
+          <p className="text-gray-600 text-xs sm:text-sm mt-1">
+            {formData.address}
+          </p>
           <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
             <span className="text-xs sm:text-sm font-semibold text-green-700 bg-green-100 px-3 py-1 rounded-full shadow-sm">
               Level: {formData.level}
@@ -200,19 +214,13 @@ const ProfileHeader = () => {
             className="bg-white rounded-2xl p-6 mx-6 w-full max-w-100 relative shadow-xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Edit Profile</h2>
+            <h2 className="text-xl font-bold mb-4 text-gray-800">
+              Edit Profile
+            </h2>
             <div className="flex flex-col gap-3">
-            <label htmlFor="pp" className="font-medium">
+              <label htmlFor="pp" className="font-medium">
                 Profile Picture:
               </label>
-              <input
-                id="pp"
-                type="file"
-                name="profileImage"
-                onChange={handleChange}
-                accept="image/*"
-                className="border p-2 rounded"
-              />
               {imagePreview && (
                 <div className="mt-2 flex justify-center">
                   <p className="text-sm text-gray-600 mb-1">Preview:</p>
@@ -223,6 +231,15 @@ const ProfileHeader = () => {
                   />
                 </div>
               )}
+              <input
+                id="pp"
+                type="file"
+                name="profileImage"
+                onChange={handleChange}
+                accept="image/*"
+                className="border p-2 rounded"
+              />
+
               <label htmlFor="name" className="font-medium">
                 Name:
               </label>
@@ -230,7 +247,7 @@ const ProfileHeader = () => {
                 id="name"
                 type="text"
                 name="name"
-                // value={formData.name}
+                value={formData.name}
                 onChange={handleChange}
                 placeholder="Name"
                 className="border p-2 rounded"
@@ -258,7 +275,7 @@ const ProfileHeader = () => {
                 id="address"
                 type="text"
                 name="address"
-                value={formData.address}
+                // value={formData.address}
                 onChange={handleChange}
                 placeholder="Address"
                 className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
