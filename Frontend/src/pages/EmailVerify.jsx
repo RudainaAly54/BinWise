@@ -21,7 +21,7 @@ const EmailVerify = () => {
       if (!otpSent && isLoggedin && userData && !userData.isAccountVerified) {
         try {
           await api.post("/api/auth/send-verify-otp");
-          toast.success("OTP has been sent to your email");
+          // toast.success("OTP has been sent to your email");
           setOtpSent(true);
         } catch (error) {
           console.error("Send OTP error:", error);
