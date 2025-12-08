@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { IoCameraOutline } from "react-icons/io5";
 import { MdOutlineFileUpload, MdDeleteOutline } from "react-icons/md";
 import { GrCircleInformation } from "react-icons/gr";
-
+import LoadingSpinner from "../components/LoadingSpinner";
 import Webcam from "react-webcam";
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
