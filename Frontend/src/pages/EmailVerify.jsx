@@ -144,7 +144,7 @@ const EmailVerify = () => {
 
       <form
         onSubmit={onSubmitHandler}
-        className="rounded-lg shadow-lg md:w-96 text-sm p-8 bg-white"
+        className='rounded-lg shadow-lg md:w-96 text-sm p-8 mx-4 bg-white self-center flex flex-col'
       >
         <h1 className="text-center text-2xl font-semibold mb-4">
           Verify Your Email
