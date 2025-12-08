@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useRef, useState} from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { AppContent } from "../context/AppContext";
 import { toast } from "react-toastify";
-import api from "../api/axios"; // ✅ Use configured axios instance
+import api from "../api/axios";
 
 const EmailVerify = () => {
   const navigate = useNavigate();
@@ -13,6 +13,25 @@ const EmailVerify = () => {
   const inputRefs = useRef([]);
   const [canResend, setCanResend] = useState(false);
   const [timer, setTimer] = useState(45);
+  const [otpSent, setOtpSent] = useState(false); // ✅ Track if OTP was sent
+
+  // ✅ Send OTP automatically when component mounts
+  useEffect(() => {
+    const sendInitialOTP = async () => {
+      if (!otpSent && isLoggedin && userData && !userData.isAccountVerified) {
+        try {
+          await api.post("/api/auth/send-verify-otp");
+          toast.success("OTP has been sent to your email");
+          setOtpSent(true);
+        } catch (error) {
+          console.error("Send OTP error:", error);
+          toast.error(error.response?.data?.message || "Failed to send OTP");
+        }
+      }
+    };
+
+    sendInitialOTP();
+  }, [isLoggedin, userData, otpSent]);
 
   useEffect(() => {
     if (!canResend && timer > 0) {
@@ -28,20 +47,16 @@ const EmailVerify = () => {
     }
   }, [timer, canResend]);
 
-  // ✅ FIXED: Use api instance instead of axios
   const handleResendOTP = async () => {
     if (!canResend) return;
 
     try {
-      // ✅ api instance automatically adds token from localStorage
       await api.post("/api/auth/send-verify-otp");
-
       toast.success("A new OTP has been sent to your email");
 
       // Restart timer
       setCanResend(false);
       setTimer(45);
-
     } catch (error) {
       console.error("Resend OTP error:", error);
       toast.error(error.response?.data?.message || "Failed to resend OTP");
@@ -70,32 +85,29 @@ const EmailVerify = () => {
     });
   };
 
-  // ✅ FIXED: Use api instance instead of axios
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
       const otp = inputRefs.current.map((input) => input.value).join("");
       if (otp.length < 6) return toast.error("Please enter the full 6-digit OTP");
-      
-      // ✅ api instance automatically adds token from localStorage
+
       const { data } = await api.post("/api/auth/verify-email", { otp });
 
       if (data.success) {
         toast.success("Email verified successfully!");
-      
+
         // Optimistically update context
         setUserData((prev) => ({
           ...prev,
           isAccountVerified: true,
         }));
-      
+
         // Ensure backend state sync
         await getUserData();
-      
+
         // Redirect to home
         navigate("/");
       }
-      
     } catch (error) {
       console.error("Verify email error:", error);
       toast.error(error.response?.data?.message || error.message);
@@ -105,23 +117,23 @@ const EmailVerify = () => {
   useEffect(() => {
     const checkAccess = async () => {
       await getUserData(); // ensure latest data from backend
-  
+
       if (!isLoggedin) {
         navigate("/login");
         return;
       }
-  
+
       if (userData?.isAccountVerified) {
         navigate("/");
       }
     };
-  
+
     checkAccess();
   }, [isLoggedin, userData?.isAccountVerified]);
-  
+
   return (
     <div className="bg-gray-100 flex flex-col min-h-screen overflow-x-hidden items-center justify-center">
-      <div className="p-4 absolute top-4 left-4">
+      <div className="rounded-lg shadow-lg md:w-96 text-sm p-8 mx-4 bg-white self-center flex flex-col">
         <img
           onClick={() => navigate("/")}
           src={assets.logo}

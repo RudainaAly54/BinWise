@@ -87,7 +87,7 @@ const ResetPassword = () => {
       </form>}
 
         {!isOtpSubmited&& isEmailSent &&
-      <form onSubmit={onSubmitOtp} className="rounded-lg shadow-lg w-96 text-sm p-8 bg-white self-center flex flex-col ">
+      <form onSubmit={onSubmitOtp}  className='rounded-lg shadow-lg md:w-96 text-sm p-8 mx-4 bg-white self-center flex flex-col'>
       <h1 className="text-center text-2xl font-semibold mb-4">Reset Password OTP</h1>
         <p className="text-center mb-6">
           Enter the 6-digit code sent to your email.
@@ -115,7 +115,7 @@ const ResetPassword = () => {
         </button>
       </form>}
       {isOtpSubmited&&isEmailSent&&
-      <form onSubmit={onSubmitNewPassword} className='rounded-lg shadow-lg w-96 text-sm p-8 bg-white self-center flex flex-col'>
+      <form onSubmit={onSubmitNewPassword}  className='rounded-lg shadow-lg md:w-96 text-sm p-8 mx-4 bg-white self-center flex flex-col'>
       <h1 className="text-center text-2xl font-semibold mb-4">New Password</h1>
         <p className="text-center mb-6">
           Enter your new Password.
