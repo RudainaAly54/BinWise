@@ -132,14 +132,14 @@ const EmailVerify = () => {
   }, [isLoggedin, userData?.isAccountVerified]);
 
   return (
-    <div className="bg-gray-100 flex flex-col min-h-screen overflow-x-hidden items-center justify-center">
-      <div className="rounded-lg shadow-lg md:w-96 text-sm p-8 mx-4 bg-white self-center flex flex-col">
-        <img
-          onClick={() => navigate("/")}
-          src={assets.logo}
-          alt="logo"
-          className="w-28 sm:w-32 cursor-pointer"
-        />
+    <div className="bg-gray-100 flex flex-col min-h-screen overflow-x-hidden">
+      <div className="p-4">
+              <img
+                onClick={() => navigate("/")}
+                src={assets.logo}
+                alt="logo"
+                className="w-28 sm:w-32 cursor-pointer"
+              />
       </div>
 
       <form
