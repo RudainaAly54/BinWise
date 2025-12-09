@@ -263,11 +263,11 @@ const PickupPage = () => {
 
     // ✅ Register with correct event names
     socket.on("pickup-created", handlePickupCreated);
-    socket.on("pickup-assigned-user", handlePickupAssignedUser); // Changed!
+    socket.on("pickup-assigned-user", handlePickupAssignedUser); 
     socket.on("pickup-completed", handlePickupCompleted);
     socket.on("points-awarded", handlePointsAwarded);
-    socket.on("pickup-updated-user", handlePickupUpdatedUser); // Changed!
-    socket.on("pickup-deleted-user", handlePickupDeletedUser); // Changed!
+    socket.on("pickup-updated-user", handlePickupUpdatedUser); 
+    socket.on("pickup-deleted-user", handlePickupDeletedUser); 
 
     return () => {
       socket.off("pickup-created", handlePickupCreated);

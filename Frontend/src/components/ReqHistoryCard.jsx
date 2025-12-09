@@ -4,7 +4,7 @@ import Toast from "./Toast";
 
 const ReqHistoryCard = ({
   date,
-  items,           // Array of objects [{ type, quantity, weight }]
+  items,
   time,
   status,
   address,
@@ -15,15 +15,9 @@ const ReqHistoryCard = ({
   onUpdate,
   points,
   gains,
-  instructions,    // <-- new prop
+  instructions,
 }) => {
-  console.log("🔍 ReqHistoryCard received:", {
-    requestId,
-    requestIdLength: requestId?.length,
-    isValidObjectId: requestId?.length === 24,
-  });
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isModifying, setIsModifying] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -56,13 +50,6 @@ const ReqHistoryCard = ({
   const handleCancelDelete = () => setShowDeleteConfirm(false);
 
   const handleConfirmDelete = async () => {
-    // ✅ ADD THIS DEBUG LOG
-    console.log("🗑️ Attempting to delete pickup:", {
-      requestId,
-      requestIdLength: requestId?.length,
-      fullUrl: `/api/pickups/${requestId}`,
-    });
-
     setIsDeleting(true);
     setShowDeleteConfirm(false);
 
@@ -75,7 +62,7 @@ const ReqHistoryCard = ({
         showToast(res.data.message || "Failed to delete pickup", "error");
       }
     } catch (error) {
-      console.error("❌ Delete error details:", {
+      console.error(" Delete error details:", {
         requestId,
         error: error.response?.data,
         status: error.response?.status,
@@ -90,7 +77,7 @@ const ReqHistoryCard = ({
   const handleModify = () => {
     if (onUpdate) {
       onUpdate({
-        id: requestId,
+        _id: requestId,  
         address,
         items,
         weight,
@@ -126,7 +113,6 @@ const ReqHistoryCard = ({
           <p className="text-gray-500 text-xs">Points: {points || 0} pt</p>
           <p className="text-gray-500 text-xs">Earning: {gains?.toFixed(2) || 0} LE</p>
 
-          {/* Instructions */}
           {instructions && (
             <p className="text-gray-500 text-xs mt-1">{instructions}</p>
           )}
@@ -135,15 +121,15 @@ const ReqHistoryCard = ({
         <div className="flex gap-1.5 mt-3">
           <button
             onClick={handleModify}
-            disabled={!isPending || isModifying}
+            disabled={!isPending}
             className={`bg-transparent border-2 border-black rounded-[10px] px-3 py-1 text-[10px] flex justify-center items-center transition-colors cursor-pointer ${
-              isPending && !isModifying
+              isPending
                 ? "text-black hover:bg-black hover:text-white cursor-pointer"
                 : "text-gray-400 border-gray-300 cursor-not-allowed opacity-50"
             }`}
             title={!isPending ? "Only pending pickups can be modified" : "Modify pickup"}
           >
-            {isModifying ? "Modifying..." : "Modify"}
+            Modify
           </button>
           <button
             onClick={handleDeleteClick}
