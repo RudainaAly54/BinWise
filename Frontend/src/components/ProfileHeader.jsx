@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../api/axios";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { toast } from "react-toastify";
+import {Phone, MapPin} from "lucide-react";
 
 const ProfileHeader = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +13,7 @@ const ProfileHeader = () => {
   const [formData, setFormData] = useState({
     name: "Guest User",
     email: "guest@example.com",
+    phone: "",
     address: "Enter your address",
     profileImage: null,
     level: "Beginner",
@@ -68,6 +70,7 @@ const ProfileHeader = () => {
           setFormData({
             name: res.data.userData.name,
             email: res.data.userData.email,
+            phone: res.data.userData.phone || "",
             address: res.data.userData.address || "Enter your address",
             profileImage: null, // Keep this null, use imagePreview for display
             level: res.data.userData.level || "Beginner",
@@ -106,6 +109,7 @@ const ProfileHeader = () => {
       const submitData = new FormData();
       submitData.append("name", formData.name);
       submitData.append("email", formData.email);
+      submitData.append("phone", formData.phone);
       submitData.append("address", formData.address);
 
       // Only append image if a new file was selected
@@ -145,6 +149,7 @@ const ProfileHeader = () => {
         // Reset form data
         setFormData((prev) => ({
           ...prev,
+          phone: res.data.userData.phone || prev.phone,
           address: res.data.userData.address,
           profileImage: null, // Clear the file object
         }));
@@ -177,8 +182,13 @@ const ProfileHeader = () => {
             {formData.name}
           </h2>
           <p className="text-gray-500 text-xs sm:text-sm">{formData.email}</p>
-          <p className="text-gray-600 text-xs sm:text-sm mt-1">
-            {formData.address}
+          {formData.phone && (
+            <p className="text-gray-600 text-xs sm:text-sm mt-1 flex items-center gap-2">
+              <Phone/>{formData.phone}
+            </p>
+          )}
+          <p className="text-gray-600 text-xs sm:text-sm mt-1 flex items-center gap-2">
+            <MapPin/>{formData.address}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
             <span className="text-xs sm:text-sm font-semibold text-green-700 bg-green-100 px-3 py-1 rounded-full shadow-sm">
@@ -218,7 +228,7 @@ const ProfileHeader = () => {
               Edit Profile
             </h2>
             <div className="flex flex-col gap-3">
-            {imagePreview && (
+              {imagePreview && (
                 <div className="mt-2 flex justify-center">
                   <img
                     src={imagePreview}
@@ -227,10 +237,10 @@ const ProfileHeader = () => {
                   />
                 </div>
               )}
+              
               <label htmlFor="pp" className="font-medium">
                 Profile Picture:
               </label>
-
               <input
                 id="pp"
                 type="file"
@@ -254,6 +264,7 @@ const ProfileHeader = () => {
                 required
                 readOnly
               />
+
               <label htmlFor="email" className="font-medium">
                 Email:
               </label>
@@ -264,10 +275,24 @@ const ProfileHeader = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Email"
-                className="border p-2 rounded "
+                className="border p-2 rounded"
                 required
                 readOnly
               />
+
+              <label htmlFor="phone" className="font-medium">
+                Phone Number:
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Enter your phone number"
+                className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+
               <label htmlFor="address" className="font-medium">
                 Address:
               </label>
@@ -275,7 +300,7 @@ const ProfileHeader = () => {
                 id="address"
                 type="text"
                 name="address"
-                // value={formData.address}
+                value={formData.address}
                 onChange={handleChange}
                 placeholder="Address"
                 className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400"

@@ -13,6 +13,7 @@ const Login = () => {
   const [state, setState] = useState("Sign Up");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
@@ -52,10 +53,11 @@ const Login = () => {
       let response;
 
       if (state === "Sign Up") {
-        console.log("📝 Attempting registration...");
+        console.log("🔐 Attempting registration...");
         response = await api.post("/api/auth/register", {
           name,
           email,
+          phone,
           password,
         });
       } else {
@@ -174,6 +176,21 @@ const Login = () => {
                   required
                 />
               </div>
+
+              {/* Phone Number - Only for Sign Up */}
+              {state === "Sign Up" && (
+                <div>
+                  <label className="font-medium">Phone Number</label>
+                  <input
+                    type="tel"
+                    className="w-full border rounded-xl px-4 py-2 mt-1 focus:ring-2 focus:ring-green-600 outline-none"
+                    placeholder="Enter your Phone Number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
 
               {/* Password */}
               <div>
